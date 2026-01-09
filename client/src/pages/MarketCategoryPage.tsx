@@ -1,12 +1,14 @@
 import { useParams } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { TrendingUp, ArrowRight } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { TrendingUp, ArrowRight, Loader2 } from "lucide-react";
 import { Link } from "wouter";
+import { useArticles } from "@/hooks/use-articles";
 
 export default function MarketCategoryPage() {
   const { category } = useParams();
+  const { data: articles, isLoading } = useArticles(category);
   const title = category?.replace(/-/g, " ").toUpperCase() || "MARKET SEGMENT";
 
   return (
@@ -25,37 +27,50 @@ export default function MarketCategoryPage() {
           </div>
 
           <div className="grid gap-6">
-            <Card className="hover-elevate">
-              <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row gap-6 items-start">
-                  <div className="w-full md:w-1/3 aspect-video bg-muted rounded-md flex items-center justify-center">
-                    <TrendingUp className="h-12 w-12 text-muted-foreground/20" />
-                  </div>
-                  <div className="flex-1 space-y-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-primary uppercase tracking-wider">{title}</span>
-                      <span className="text-xs text-muted-foreground">• 2 hours ago</span>
+            {isLoading ? (
+              <div className="flex justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : articles && articles.length > 0 ? (
+              articles.map((article) => (
+                <Card key={article.id} className="hover-elevate">
+                  <CardContent className="p-6">
+                    <div className="flex flex-col md:flex-row gap-6 items-start">
+                      <div 
+                        className="w-full md:w-1/3 aspect-video bg-muted rounded-md bg-cover bg-center"
+                        style={{ backgroundImage: `url(${article.imageUrl})` }}
+                      />
+                      <div className="flex-1 space-y-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-primary uppercase tracking-wider">{article.category}</span>
+                          <span className="text-xs text-muted-foreground">
+                            • {article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : 'Recent'}
+                          </span>
+                        </div>
+                        <Link href={`/article/${article.slug}`}>
+                          <h2 className="text-2xl font-serif font-bold hover:text-primary cursor-pointer transition-colors leading-tight">
+                            {article.title}
+                          </h2>
+                        </Link>
+                        <p className="text-muted-foreground line-clamp-2">
+                          {article.summary}
+                        </p>
+                        <Link href={`/article/${article.slug}`} className="inline-flex items-center text-sm font-bold text-primary hover:underline">
+                          Read full article <ArrowRight className="ml-1 h-4 w-4" />
+                        </Link>
+                      </div>
                     </div>
-                    <h2 className="text-2xl font-serif font-bold hover:text-primary cursor-pointer transition-colors leading-tight">
-                      Recent Developments in {title.toLowerCase()}
-                    </h2>
-                    <p className="text-muted-foreground line-clamp-2">
-                      Market analysis and outlook for the {title.toLowerCase()} segment. Detailed insights into current trends and future projections.
-                    </p>
-                    <Link href="/" className="inline-flex items-center text-sm font-bold text-primary hover:underline">
-                      Read full article <ArrowRight className="ml-1 h-4 w-4" />
-                    </Link>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="bg-secondary rounded-lg p-8 text-center border border-dashed border-muted-foreground/20 mt-12">
-              <h3 className="text-xl font-serif font-bold mb-2 text-secondary-foreground">Content Integration in Progress</h3>
-              <p className="text-muted-foreground max-w-md mx-auto">
-                We are currently migrating real-time data for this specific segment. Articles and analysis will appear here shortly.
-              </p>
-            </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="bg-secondary rounded-lg p-8 text-center border border-dashed border-muted-foreground/20 mt-12">
+                <h3 className="text-xl font-serif font-bold mb-2 text-secondary-foreground">No Articles Yet</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  Articles and analysis for this segment will appear here once published by the admin.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </main>

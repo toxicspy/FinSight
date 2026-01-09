@@ -227,6 +227,17 @@ export default function AdminCMS() {
                               <SelectItem value="Personal Finance">Personal Finance</SelectItem>
                               <SelectItem value="Economy">Economy</SelectItem>
                               <SelectItem value="Learn">Learn</SelectItem>
+                              <SelectItem value="bulk-block-deals">Bulk / Block Deals</SelectItem>
+                              <SelectItem value="corporate-actions">Corporate Actions</SelectItem>
+                              <SelectItem value="large-cap">Large Cap</SelectItem>
+                              <SelectItem value="mid-cap">Mid Cap</SelectItem>
+                              <SelectItem value="micro-penny">Micro & Penny</SelectItem>
+                              <SelectItem value="recent-orders">Recent Orders</SelectItem>
+                              <SelectItem value="results">Results & Earnings</SelectItem>
+                              <SelectItem value="ipo-analysis">IPO Analysis</SelectItem>
+                              <SelectItem value="fpo-analysis">FPO Analysis</SelectItem>
+                              <SelectItem value="stock-ideas">Stock Ideas</SelectItem>
+                              <SelectItem value="technical-analysis">Technical Analysis</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />

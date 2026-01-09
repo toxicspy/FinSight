@@ -104,6 +104,33 @@ export async function registerRoutes(
     res.json(stock);
   });
 
+  // Market Category Catch-all (Temporary for migration)
+  app.get("/market/:category", (req, res) => {
+    const category = req.params.category;
+    res.send(`
+      <html>
+        <head>
+          <title>${category.replace(/-/g, " ")} | Market Segments</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              background: #f9f9f9;
+              padding: 40px;
+            }
+            h1 {
+              color: #137333;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>${category.replace(/-/g, " ").toUpperCase()}</h1>
+          <p>Articles for this category will appear here.</p>
+          <a href="/">Back to Home</a>
+        </body>
+      </html>
+    `);
+  });
+
   // Seed Data
   await seedDatabase();
 

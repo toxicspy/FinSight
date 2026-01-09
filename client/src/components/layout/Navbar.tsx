@@ -69,12 +69,12 @@ export function Navbar() {
                         </div>
                       </NavigationMenuTrigger>
                       <NavigationMenuContent>
-                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] bg-white text-black">
+                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] bg-white dark:bg-slate-950">
                           {item.items.map((subItem) => (
                             <li key={subItem.path}>
                               <NavigationMenuLink asChild>
                                 <Link href={subItem.path}>
-                                  <div className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer">
+                                  <div className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-[#e6f4ea] hover:text-[#137333] dark:hover:bg-[#137333] dark:hover:text-white cursor-pointer text-black dark:text-white">
                                     <div className="text-sm font-medium leading-none">{subItem.name}</div>
                                   </div>
                                 </Link>

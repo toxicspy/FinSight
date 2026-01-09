@@ -7,6 +7,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import ArticleDetail from "@/pages/ArticleDetail";
 import CategoryPage from "@/pages/CategoryPage";
+import MarketCategoryPage from "@/pages/MarketCategoryPage";
 import Analytics from "@/pages/Analytics";
 import AdminCMS from "@/pages/AdminCMS";
 
@@ -15,6 +16,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/article/:slug" component={ArticleDetail} />
+      <Route path="/market/:category" component={MarketCategoryPage} />
       <Route path="/category/:category" component={CategoryPage} />
       <Route path="/analytics" component={Analytics} />
       <Route path="/admin" component={AdminCMS} />

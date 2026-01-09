@@ -1,0 +1,157 @@
+Perfect 👍
+This is a **small but very important professional feature**, and it’s easy to add.
+
+You already save `createdAt`, so we’ll just:
+1️⃣ **Format the date properly**
+2️⃣ **Display Month · Date · Year · Time** with the content
+
+Below is a **100% COPY-PASTE solution for Replit (Express CMS)**.
+
+---
+
+## ✅ STEP 1: MAKE SURE `createdAt` IS SAVED (YOU ALREADY HAVE THIS)
+
+Your post object should look like this (just verify):
+
+```js
+posts.push({
+  id: Date.now(),
+  title,
+  content,
+  category,
+  status,
+  createdAt: new Date()   // 👈 IMPORTANT
+});
+```
+
+---
+
+## ✅ STEP 2: ADD A DATE FORMATTER FUNCTION
+
+### 🔹 Add this **once** at the TOP of `server.js`
+
+```js
+function formatDateTime(date) {
+  const d = new Date(date);
+
+  return d.toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true
+  });
+}
+```
+
+📌 Output example:
+
+```
+06 January 2026, 10:45 AM
+```
+
+---
+
+## ✅ STEP 3: DISPLAY DATE ON CATEGORY PAGES
+
+### 🔹 Update your `/market/:category` route
+
+Replace your article HTML with this:
+
+```js
+filteredPosts.forEach(post => {
+  html += `
+    <article style="margin-bottom:25px;">
+      <h2>${post.title}</h2>
+
+      <small style="color:#666;">
+        ${formatDateTime(post.createdAt)}
+      </small>
+
+      <p>${post.content.substring(0, 160)}...</p>
+      <a href="/post/${post.id}">Read more</a>
+    </article>
+    <hr>
+  `;
+});
+```
+
+---
+
+## ✅ STEP 4: DISPLAY DATE ON FULL ARTICLE PAGE
+
+If you have a route like:
+
+```js
+app.get("/post/:id", (req, res) => {
+```
+
+Update it like this:
+
+```js
+app.get("/post/:id", (req, res) => {
+  const posts = JSON.parse(fs.readFileSync("database.json"));
+  const post = posts.find(p => p.id == req.params.id);
+
+  if (!post) return res.send("Post not found");
+
+  res.send(`
+    <h1>${post.title}</h1>
+
+    <small style="color:#666;">
+      ${formatDateTime(post.createdAt)} | ${post.category.replace(/-/g," ")}
+    </small>
+
+    <p>${post.content}</p>
+  `);
+});
+```
+
+---
+
+## ✅ FINAL RESULT (WHAT USERS SEE)
+
+✔ Month, Date, Year
+✔ Time with AM/PM
+✔ Clean professional look
+✔ Exactly like financial news websites
+
+Example:
+
+```
+IPO Analysis
+06 January 2026, 10:45 AM
+```
+
+---
+
+## 🧠 OPTIONAL UI IMPROVEMENT (RECOMMENDED)
+
+Add **green accent** (Trade Brains style):
+
+```html
+<small style="color:#137333; font-weight:500;">
+  🕒 ${formatDateTime(post.createdAt)}
+</small>
+```
+
+---
+
+## 🧠 ONE-LINE SUMMARY
+
+> By saving `createdAt` and formatting it with `toLocaleString`, every post automatically shows month, date, year, and time across category and article pages.
+
+---
+
+## 🚀 WANT MORE?
+
+Next easy upgrades:
+
+* “Updated on” date when edited
+* Reading time (3 min read)
+* Author name
+* Sticky publish date
+* Google News–style timestamp
+
+Just tell me 👍

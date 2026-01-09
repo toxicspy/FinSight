@@ -1,6 +1,6 @@
 import { Link } from "wouter";
-import { type Article } from "@shared/routes";
-import { formatDistanceToNow } from "date-fns";
+import { type Article } from "@shared/schema";
+import { formatDateTime } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
 interface NewsCardProps {
@@ -34,7 +34,9 @@ export function NewsCard({ article, featured = false }: NewsCardProps) {
             <div className="flex items-center text-slate-300 text-sm font-medium">
               <span>{article.authorName}</span>
               <span className="mx-2">•</span>
-              <span>{formatDistanceToNow(new Date(article.publishedAt || ""), { addSuffix: true })}</span>
+              <span style={{ color: '#137333', fontWeight: 500 }}>
+                🕒 {formatDateTime(article.publishedAt || "")}
+              </span>
             </div>
           </div>
         </div>
@@ -64,7 +66,9 @@ export function NewsCard({ article, featured = false }: NewsCardProps) {
           </p>
           <div className="flex items-center justify-between text-xs text-muted-foreground mt-auto pt-4 border-t border-border/50">
             <span className="font-medium text-foreground">{article.authorName}</span>
-            <span>{formatDistanceToNow(new Date(article.publishedAt || ""), { addSuffix: true })}</span>
+            <span style={{ color: '#137333', fontWeight: 500 }}>
+              🕒 {formatDateTime(article.publishedAt || "")}
+            </span>
           </div>
         </div>
       </div>

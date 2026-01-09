@@ -3,7 +3,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useRoute } from "wouter";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
+import { formatDateTime } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -66,8 +66,8 @@ export default function ArticleDetail() {
             <div className="h-8 w-px bg-border" />
             <div className="text-left">
               <p className="text-sm font-bold text-foreground">Published</p>
-              <p className="text-xs text-muted-foreground">
-                {format(new Date(article.publishedAt || ""), "MMM dd, yyyy • h:mm a")}
+              <p className="text-xs font-medium" style={{ color: '#137333' }}>
+                🕒 {formatDateTime(article.publishedAt || "")}
               </p>
             </div>
             <div className="flex-grow md:flex-grow-0 md:ml-auto flex gap-2">

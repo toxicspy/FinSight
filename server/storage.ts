@@ -1,38 +1,62 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { db } from "./db";
+import {
+  articles, stocks,
+  type Article, type InsertArticle,
+  type Stock, type InsertStock
+} from "@shared/schema";
+import { eq, desc } from "drizzle-orm";
+import { authStorage, type IAuthStorage } from "./replit_integrations/auth/storage";
 
-// modify the interface with any CRUD methods
-// you might need
-
-export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+export interface IStorage extends IAuthStorage {
+  getArticles(limit?: number, category?: string, featured?: boolean): Promise<Article[]>;
+  getArticleBySlug(slug: string): Promise<Article | undefined>;
+  createArticle(article: InsertArticle): Promise<Article>;
+  
+  getStocks(): Promise<Stock[]>;
+  getStock(symbol: string): Promise<Stock | undefined>;
+  createStock(stock: InsertStock): Promise<Stock>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-
-  constructor() {
-    this.users = new Map();
+export class DatabaseStorage extends (authStorage.constructor as { new (): IAuthStorage }) implements IStorage {
+  async getArticles(limit?: number, category?: string, featured?: boolean): Promise<Article[]> {
+    let query = db.select().from(articles).orderBy(desc(articles.publishedAt));
+    
+    if (category) {
+      query = query.where(eq(articles.category, category)) as any;
+    }
+    if (featured) {
+      query = query.where(eq(articles.isFeatured, true)) as any;
+    }
+    if (limit) {
+      query = query.limit(limit) as any;
+    }
+    
+    return await query;
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  async getArticleBySlug(slug: string): Promise<Article | undefined> {
+    const [article] = await db.select().from(articles).where(eq(articles.slug, slug));
+    return article;
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  async createArticle(article: InsertArticle): Promise<Article> {
+    const [newArticle] = await db.insert(articles).values(article).returning();
+    return newArticle;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async getStocks(): Promise<Stock[]> {
+    return await db.select().from(stocks);
+  }
+
+  async getStock(symbol: string): Promise<Stock | undefined> {
+    const [stock] = await db.select().from(stocks).where(eq(stocks.symbol, symbol));
+    return stock;
+  }
+
+  async createStock(stock: InsertStock): Promise<Stock> {
+    const [newStock] = await db.insert(stocks).values(stock).returning();
+    return newStock;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

@@ -23,6 +23,24 @@ export function Navbar() {
 
   const navItems = [
     { name: "Market News", path: "/", icon: <TrendingUp className="w-4 h-4 mr-2" /> },
+    { 
+      name: "Market Segments", 
+      path: "/market", 
+      icon: <BarChart2 className="w-4 h-4 mr-2" />,
+      items: [
+        { name: "Bulk / Block Deals", path: "/market/bulk-block-deals" },
+        { name: "Corporate Actions", path: "/market/corporate-actions" },
+        { name: "Large Cap", path: "/market/large-cap" },
+        { name: "Mid Cap", path: "/market/mid-cap" },
+        { name: "Micro & Penny", path: "/market/micro-penny" },
+        { name: "Recent Orders", path: "/market/recent-orders" },
+        { name: "Results & Earnings", path: "/market/results" },
+        { name: "IPO Analysis", path: "/market/ipo-analysis" },
+        { name: "FPO Analysis", path: "/market/fpo-analysis" },
+        { name: "Stock Ideas", path: "/market/stock-ideas" },
+        { name: "Technical Analysis", path: "/market/technical-analysis" },
+      ]
+    },
     { name: "Analysis", path: "/category/analysis", icon: <BarChart2 className="w-4 h-4 mr-2" /> },
     { name: "Personal Finance", path: "/category/finance", icon: <BookOpen className="w-4 h-4 mr-2" /> },
     { name: "Analytics", path: "/analytics", protected: true, icon: <BarChart2 className="w-4 h-4 mr-2" /> },
@@ -43,11 +61,36 @@ export function Navbar() {
             <NavigationMenuList>
               {navItems.filter(i => !i.protected || user).map((item) => (
                 <NavigationMenuItem key={item.path}>
-                  <Link href={item.path}>
-                    <div className={`px-4 py-2 text-sm font-medium transition-colors hover:text-primary cursor-pointer ${isActive(item.path) ? "text-primary font-bold" : "text-muted-foreground"}`}>
-                      {item.name}
-                    </div>
-                  </Link>
+                  {item.items ? (
+                    <>
+                      <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent">
+                        <div className={`flex items-center text-sm font-medium transition-colors hover:text-primary cursor-pointer ${location.startsWith(item.path) ? "text-primary font-bold" : "text-muted-foreground"}`}>
+                          {item.name}
+                        </div>
+                      </NavigationMenuTrigger>
+                      <NavigationMenuContent>
+                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] bg-white text-black">
+                          {item.items.map((subItem) => (
+                            <li key={subItem.path}>
+                              <NavigationMenuLink asChild>
+                                <Link href={subItem.path}>
+                                  <div className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer">
+                                    <div className="text-sm font-medium leading-none">{subItem.name}</div>
+                                  </div>
+                                </Link>
+                              </NavigationMenuLink>
+                            </li>
+                          ))}
+                        </ul>
+                      </NavigationMenuContent>
+                    </>
+                  ) : (
+                    <Link href={item.path}>
+                      <div className={`px-4 py-2 text-sm font-medium transition-colors hover:text-primary cursor-pointer ${isActive(item.path) ? "text-primary font-bold" : "text-muted-foreground"}`}>
+                        {item.name}
+                      </div>
+                    </Link>
+                  )}
                 </NavigationMenuItem>
               ))}
               
@@ -109,12 +152,32 @@ export function Navbar() {
             <SheetContent>
               <div className="flex flex-col space-y-6 mt-8">
                 {navItems.filter(i => !i.protected || user).map((item) => (
-                  <Link key={item.path} href={item.path} onClick={() => setIsMobileOpen(false)}>
-                     <div className={`flex items-center text-lg font-medium ${isActive(item.path) ? "text-primary" : "text-foreground"}`}>
-                        {item.icon}
-                        {item.name}
-                     </div>
-                  </Link>
+                  <div key={item.path} className="flex flex-col space-y-2">
+                    {item.items ? (
+                      <>
+                        <div className="flex items-center text-lg font-medium text-foreground py-2 border-b border-border/50">
+                          {item.icon}
+                          {item.name}
+                        </div>
+                        <div className="pl-6 flex flex-col space-y-3 mt-2">
+                          {item.items.map((subItem) => (
+                            <Link key={subItem.path} href={subItem.path} onClick={() => setIsMobileOpen(false)}>
+                              <div className={`text-base ${isActive(subItem.path) ? "text-primary font-semibold" : "text-muted-foreground"}`}>
+                                {subItem.name}
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <Link href={item.path} onClick={() => setIsMobileOpen(false)}>
+                        <div className={`flex items-center text-lg font-medium ${isActive(item.path) ? "text-primary" : "text-foreground"}`}>
+                          {item.icon}
+                          {item.name}
+                        </div>
+                      </Link>
+                    )}
+                  </div>
                 ))}
                 {user && (
                   <Link href="/admin" onClick={() => setIsMobileOpen(false)}>

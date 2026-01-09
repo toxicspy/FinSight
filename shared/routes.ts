@@ -45,6 +45,24 @@ export const api = {
         400: errorSchemas.validation,
       },
     },
+    update: {
+      method: 'PATCH' as const,
+      path: '/api/articles/:id',
+      input: insertArticleSchema.partial(),
+      responses: {
+        200: z.custom<typeof articles.$inferSelect>(),
+        400: errorSchemas.validation,
+        404: errorSchemas.notFound,
+      },
+    },
+    delete: {
+      method: 'DELETE' as const,
+      path: '/api/articles/:id',
+      responses: {
+        204: z.null(),
+        404: errorSchemas.notFound,
+      },
+    },
   },
   stocks: {
     list: {

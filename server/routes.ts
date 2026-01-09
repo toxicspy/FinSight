@@ -50,6 +50,46 @@ export async function registerRoutes(
     }
   });
 
+  app.patch(api.articles.update.path, async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const id = parseInt(req.params.id);
+      const input = api.articles.update.input.parse(req.body);
+      const article = await storage.updateArticle(id, input);
+      
+      if (!article) {
+        return res.status(404).json({ message: "Article not found" });
+      }
+      
+      res.json(article);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join('.'),
+        });
+      }
+    }
+  });
+
+  app.delete(api.articles.delete.path, async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const id = parseInt(req.params.id);
+    const success = await storage.deleteArticle(id);
+    
+    if (!success) {
+      return res.status(404).json({ message: "Article not found" });
+    }
+    
+    res.sendStatus(204);
+  });
+
   // Stocks Routes
   app.get(api.stocks.list.path, async (req, res) => {
     const stocks = await storage.getStocks();

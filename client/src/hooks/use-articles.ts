@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, buildUrl, type Article, type InsertArticle } from "@shared/routes";
+import { api, buildUrl } from "@shared/routes";
+import { type Article, type InsertArticle } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 
 // Fetch all articles with optional filters
@@ -63,6 +64,81 @@ export function useCreateArticle() {
       toast({
         title: "Success",
         description: "Article published successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+}
+
+// Update existing article
+export function useUpdateArticle() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: Partial<InsertArticle> }) => {
+      const url = buildUrl(api.articles.update.path, { id });
+      const res = await fetch(url, {
+        method: api.articles.update.method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        if (res.status === 400) {
+          const error = await res.json();
+          throw new Error(error.message || "Validation failed");
+        }
+        throw new Error("Failed to update article");
+      }
+      return api.articles.update.responses[200].parse(await res.json());
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [api.articles.list.path] });
+      toast({
+        title: "Success",
+        description: "Article updated successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+}
+
+// Delete article
+export function useDeleteArticle() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const url = buildUrl(api.articles.delete.path, { id });
+      const res = await fetch(url, {
+        method: api.articles.delete.method,
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to delete article");
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [api.articles.list.path] });
+      toast({
+        title: "Success",
+        description: "Article deleted successfully",
       });
     },
     onError: (error) => {

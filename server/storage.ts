@@ -11,6 +11,8 @@ export interface IStorage extends IAuthStorage {
   getArticles(limit?: number, category?: string, featured?: boolean): Promise<Article[]>;
   getArticleBySlug(slug: string): Promise<Article | undefined>;
   createArticle(article: InsertArticle): Promise<Article>;
+  updateArticle(id: number, article: Partial<InsertArticle>): Promise<Article | undefined>;
+  deleteArticle(id: number): Promise<boolean>;
   
   getStocks(): Promise<Stock[]>;
   getStock(symbol: string): Promise<Stock | undefined>;
@@ -42,6 +44,23 @@ export class DatabaseStorage extends (authStorage.constructor as { new (): IAuth
   async createArticle(article: InsertArticle): Promise<Article> {
     const [newArticle] = await db.insert(articles).values(article).returning();
     return newArticle;
+  }
+
+  async updateArticle(id: number, article: Partial<InsertArticle>): Promise<Article | undefined> {
+    const [updatedArticle] = await db
+      .update(articles)
+      .set(article)
+      .where(eq(articles.id, id))
+      .returning();
+    return updatedArticle;
+  }
+
+  async deleteArticle(id: number): Promise<boolean> {
+    const [deletedArticle] = await db
+      .delete(articles)
+      .where(eq(articles.id, id))
+      .returning();
+    return !!deletedArticle;
   }
 
   async getStocks(): Promise<Stock[]> {

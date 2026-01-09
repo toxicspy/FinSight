@@ -1,0 +1,211 @@
+Here is a **high-quality, copy-paste–ready MASTER PROMPT** you can use in **AI website builders, UI/UX generators, or with a developer/LLM** to create a website **structurally similar to Trade Brains**, while keeping it original and legally safe.
+The structure, flow, and functionality are the same, but **content and branding are unique**, and the **color theme is White + Green** as you requested.
+
+---
+
+## ✅ MASTER WEBSITE GENERATION PROMPT
+
+*(Trade Brains–style finance & stock market website)*
+
+---
+
+**Prompt:**
+
+> Design and generate a **professional financial news and stock market analysis website** with a **structure, navigation flow, and content hierarchy similar to Trade Brains**, but with **original branding, content, and UI design**.
+>
+> ### 🎨 Color Theme
+>
+> * Primary color: **Green** (trust, growth, finance)
+> * Secondary color: **White** (clean, minimal background)
+> * Accent color: Dark green / light grey for contrast
+> * Overall look: **Clean, modern, data-driven, investor-friendly**
+>
+> ---
+>
+> ### 🧭 WEBSITE STRUCTURE (MUST FOLLOW EXACTLY)
+>
+> #### 1. HEADER / TOP NAVIGATION BAR
+>
+> * Sticky header
+> * Logo on left
+> * Main navigation menu:
+>
+>   * Home
+>   * Indian Markets
+>
+>     * Large Cap
+>     * Mid Cap
+>     * Small & Micro Cap
+>     * Bulk & Block Deals
+>     * Corporate Actions
+>     * Results & Earnings
+>     * IPO & FPO Analysis
+>     * Technical Analysis
+>   * Personal Finance
+>
+>     * Banking
+>     * Insurance
+>     * Loans
+>     * Credit Cards
+>     * Fintech
+>   * Cryptocurrency
+>   * Tools
+>
+>     * Stock Screener
+>     * Compare Stocks
+>     * Heatmap
+>     * Portfolio Tracker
+>   * Learn
+>   * About
+> * Search icon on right
+> * Login / Sign-up button (for analytics portal)
+>
+> ---
+>
+> #### 2. HOMEPAGE LAYOUT
+>
+> **Hero Section**
+>
+> * Large featured market headline
+> * Market snapshot (Sensex, Nifty, % change)
+> * Green highlight for gains, red for losses
+>
+> **Latest Market News Section**
+>
+> * Card-based article layout
+> * Each card includes:
+>
+>   * Featured image
+>   * Headline
+>   * Short summary
+>   * Category tag
+>   * Publish time
+>
+> **Editor’s Picks**
+>
+> * Curated important articles
+>
+> **Stock-in-Focus Section**
+>
+> * “Why Stock X gained today” style articles
+>
+> **IPO & Earnings Section**
+>
+> * IPO analysis cards
+> * Quarterly result updates
+>
+> ---
+>
+> #### 3. CATEGORY PAGES
+>
+> * Grid-based article listings
+> * Filters (latest, popular, trending)
+> * Pagination or infinite scroll
+> * Breadcrumb navigation
+>
+> ---
+>
+> #### 4. ARTICLE PAGE FORMAT
+>
+> * Large title at top
+> * Author name & publish date
+> * Featured image
+> * Clean readable typography
+> * Sections with headings:
+>
+>   * What happened?
+>   * Company overview
+>   * Financial highlights
+>   * Stock price movement
+>   * Key takeaway
+> * Highlight boxes in light green
+> * **Mandatory disclaimer at bottom**
+>
+> ---
+>
+> #### 5. ANALYTICS PORTAL (SUB-SITE)
+>
+> * Separate dashboard-style interface
+> * Login required
+> * Features:
+>
+>   * Stock screener with filters
+>   * Stock comparison tool
+>   * Financial ratios & charts
+>   * Watchlist & portfolio
+>   * Sector heatmap
+>
+> ---
+>
+> #### 6. FOOTER
+>
+> * White background with green accents
+> * Sections:
+>
+>   * Quick Links
+>   * Tools
+>   * Learn
+>   * Legal
+> * Pages:
+>
+>   * About
+>   * Contact
+>   * Advertise
+>   * Careers
+>   * Privacy Policy
+>   * Terms & Conditions
+>   * Disclaimer
+> * Social media icons
+>
+> ---
+>
+> ### 🧠 FUNCTIONAL REQUIREMENTS
+>
+> * SEO-friendly structure
+> * Fast loading
+> * Mobile-first responsive design
+> * CMS-based content publishing
+> * Admin panel for writers and editors
+> * Ad placement zones
+> * Push notification support
+>
+> ---
+>
+> ### 🖋️ CONTENT STYLE
+>
+> * Simple language for retail investors
+> * Data-backed explanations
+> * Neutral and educational tone
+> * No direct investment advice
+>
+> ---
+>
+> ### ⚠️ LEGAL & COMPLIANCE
+>
+> * Display disclaimer on all articles
+> * No buy/sell recommendations
+> * SEBI-safe educational positioning
+>
+> ---
+>
+> ### 🎯 FINAL OUTPUT EXPECTATION
+>
+> * Fully structured website layout
+> * White + green modern finance theme
+> * Trade Brains–style content flow
+> * Original branding and UI
+> * Ready for development or CMS integration
+
+---
+
+## 🧩 Optional (If You Want More)
+
+I can also:
+
+* Generate **HTML + CSS + Tailwind UI**
+* Create **WordPress theme structure**
+* Design **Figma UI screens**
+* Write **sample daily articles**
+* Plan **admin + editor workflow**
+
+Just tell me what you want next 🚀

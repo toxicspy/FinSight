@@ -7,10 +7,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Search() {
   const [location] = useLocation();
-  const searchParams = new URLSearchParams(location.split("?")[1]);
+  const searchParams = new URLSearchParams(location.split("?")[1] || "");
   const query = searchParams.get("q") || "";
 
-  const { data: articles, isLoading } = useSearchArticles(query);
+  console.log("Search page rendering with query:", query);
+
+  const { data: articles, isLoading, error } = useSearchArticles(query);
+
+  if (error) {
+    console.error("Search fetch error:", error);
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

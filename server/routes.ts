@@ -92,13 +92,21 @@ export async function registerRoutes(
 
   app.get(api.articles.search.path, async (req, res) => {
     try {
+      console.log("Search parameters received:", req.query);
       const { q } = api.articles.search.input.parse(req.query);
-      const results = await storage.searchArticles(q);
+      
+      if (!q || q.trim() === "") {
+        return res.json([]);
+      }
+
+      const results = await storage.searchArticles(q.trim());
+      console.log(`Found ${results.length} results for query: "${q}"`);
       res.json(results);
     } catch (err) {
       if (err instanceof z.ZodError) {
         res.status(400).json({ message: "Invalid search query" });
       } else {
+        console.error("Search error:", err);
         res.status(500).json({ message: "Internal server error" });
       }
     }

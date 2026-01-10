@@ -22,8 +22,11 @@ export function Navbar() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      setLocation(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    const query = searchQuery.trim();
+    if (query) {
+      console.log("Navigating to search with query:", query);
+      setLocation(`/search?q=${encodeURIComponent(query)}`);
+      setSearchQuery(""); // Clear search bar after submission
     }
   };
 

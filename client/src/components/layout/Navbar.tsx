@@ -50,6 +50,7 @@ export function Navbar() {
         { name: "FPO Analysis", path: "/market/fpo-analysis" },
         { name: "Stock Ideas", path: "/market/stock-ideas" },
         { name: "Technical Analysis", path: "/market/technical-analysis" },
+        { name: "Cryptocurrency", path: "/market/cryptocurrency" },
       ]
     },
     { name: "Analysis", path: "/category/analysis", icon: <BarChart2 className="w-4 h-4 mr-2" /> },

@@ -238,6 +238,7 @@ export default function AdminCMS() {
                               <SelectItem value="fpo-analysis">FPO Analysis</SelectItem>
                               <SelectItem value="stock-ideas">Stock Ideas</SelectItem>
                               <SelectItem value="technical-analysis">Technical Analysis</SelectItem>
+                              <SelectItem value="cryptocurrency">Cryptocurrency</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />

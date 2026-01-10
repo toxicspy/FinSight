@@ -126,6 +126,66 @@ export async function registerRoutes(
     res.json(stock);
   });
 
+  // Dynamic Sitemap Route
+  app.get("/sitemap.xml", async (req, res) => {
+    try {
+      const articles = await storage.getArticles();
+      const baseUrl = `https://${req.get("host")}`;
+
+      let xml = '<?xml version="1.0" encoding="UTF-8"?>';
+      xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+
+      // Homepage
+      xml += \`
+  <url>
+    <loc>\${baseUrl}/</loc>
+    <lastmod>\${new Date().toISOString().split("T")[0]}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>\`;
+
+      // Main Categories
+      const categories = [
+        "market-news",
+        "cryptocurrency",
+        "personal-finance",
+        "ipo-analysis",
+        "stock-ideas",
+        "fpo-analysis",
+        "results"
+      ];
+
+      categories.forEach(cat => {
+        xml += \`
+  <url>
+    <loc>\${baseUrl}/category/\${cat}</loc>
+    <lastmod>\${new Date().toISOString().split("T")[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>\`;
+      });
+
+      // All Articles
+      articles.forEach(article => {
+        xml += \`
+  <url>
+    <loc>\${baseUrl}/post/\${article.slug}</loc>
+    <lastmod>\${new Date(article.publishedAt || new Date()).toISOString().split("T")[0]}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>\`;
+      });
+
+      xml += "</urlset>";
+
+      res.header("Content-Type", "application/xml");
+      res.send(xml);
+    } catch (err) {
+      console.error("Sitemap generation error:", err);
+      res.status(500).end();
+    }
+  });
+
   // Market Category Catch-all (Temporary for migration)
   app.get("/market/:category", (req, res) => {
     const category = req.params.category;

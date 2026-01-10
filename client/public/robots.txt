@@ -34,4 +34,4 @@ Allow: /category/results
 Allow: /
 
 # Sitemap (if you generate one later)
-# Sitemap: https://yourwebsite.com/sitemap.xml
+Sitemap: https://yourwebsite.com/sitemap.xml

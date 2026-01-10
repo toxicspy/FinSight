@@ -1,0 +1,159 @@
+Perfect, this is a **classic navbar “active state” bug** 👍
+Nothing is wrong with your routes or categories — it’s **only CSS / active-class logic**.
+
+I’ll explain **why it happens** and then give you the **exact fix** (copy-paste).
+
+---
+
+## 🔍 WHY THIS IS HAPPENING
+
+Your navbar probably highlights items using **partial URL matching**, something like:
+
+```js
+if (currentPath.includes(linkHref)) {
+  addActiveClass();
+}
+```
+
+So when you open:
+
+```
+/category/cryptocurrency
+```
+
+Both of these match:
+
+* `/category`  → **Market Segments**
+* `/category/cryptocurrency` → **Cryptocurrency**
+
+👉 Result: **Both turn green**
+
+---
+
+## 🎯 WHAT WE WANT
+
+✔ When on `/category/cryptocurrency`
+→ **ONLY “Cryptocurrency” is green**
+→ **Market Segments stays normal**
+
+---
+
+# ✅ FIX 1 (BEST & CLEAN — RECOMMENDED)
+
+### Use **EXACT matching** instead of `includes`
+
+#### 🔹 Open your navbar JS / EJS logic
+
+You’ll find something like this:
+
+```js
+if (currentPath.includes("/category")) {
+  marketSegments.classList.add("active");
+}
+```
+
+### ❌ REMOVE or CHANGE IT
+
+---
+
+### ✅ REPLACE WITH THIS LOGIC
+
+```js
+const path = window.location.pathname;
+
+// Reset all
+document.querySelectorAll(".nav-link").forEach(link => {
+  link.classList.remove("active");
+});
+
+// Exact matches
+if (path === "/category/cryptocurrency") {
+  document.querySelector("#nav-crypto").classList.add("active");
+}
+
+else if (path.startsWith("/category/") && path !== "/category/cryptocurrency") {
+  document.querySelector("#nav-market-segments").classList.add("active");
+}
+
+else if (path === "/market-news") {
+  document.querySelector("#nav-market-news").classList.add("active");
+}
+```
+
+---
+
+### 🔹 Your HTML should have IDs
+
+```html
+<li id="nav-market-segments">
+  <a href="#">Market Segments</a>
+</li>
+
+<li id="nav-crypto">
+  <a href="/category/cryptocurrency">Cryptocurrency</a>
+</li>
+```
+
+---
+
+# ✅ FIX 2 (CSS-ONLY QUICK FIX)
+
+If you **don’t want JS**, use **exact href selector**.
+
+```css
+.navbar a.active {
+  color: green;
+}
+
+.navbar a[href="/category/cryptocurrency"].active ~ .dropdown {
+  color: inherit;
+}
+```
+
+⚠️ This works but is **less reliable** than Fix #1.
+
+---
+
+# ✅ FIX 3 (BEST PRACTICE — SERVER-SIDE)
+
+If you use **EJS**, this is the most professional way.
+
+### 🔹 In `server.js`
+
+```js
+res.render("page", {
+  activePage: "cryptocurrency"
+});
+```
+
+### 🔹 In navbar.ejs
+
+```ejs
+<li class="<%= activePage === 'cryptocurrency' ? 'active' : '' %>">
+  <a href="/category/cryptocurrency">Cryptocurrency</a>
+</li>
+
+<li class="<%= activePage === 'market-segments' ? 'active' : '' %>">
+  <a href="#">Market Segments</a>
+</li>
+```
+
+✔ Only one highlights
+✔ No JS bugs
+✔ Trade Brains–style solution
+
+---
+
+## 🧠 ONE-LINE SUMMARY
+
+> Both items highlight because your navbar uses partial URL matching; switching to exact matching fixes it permanently.
+
+---
+
+## 🚀 WHAT I RECOMMEND YOU DO
+
+👉 Use **FIX 1** (JS exact matching)
+or
+👉 Use **FIX 3** if you’re using EJS (best long-term)
+
+If you want, **paste your navbar code here**, and I’ll fix it **exactly for your file**, line by line 👌

@@ -30,7 +30,14 @@ export function Navbar() {
     }
   };
 
-  const isActive = (path: string) => location === path;
+  const isActive = (path: string) => {
+    if (path === "/market") {
+      // Market Segments dropdown should only be active if it's a market path 
+      // AND NOT the cryptocurrency path which we've moved to top-level
+      return location.startsWith("/market") && location !== "/market/cryptocurrency";
+    }
+    return location === path;
+  };
 
   const navItems = [
     { name: "Market News", path: "/", icon: <TrendingUp className="w-4 h-4 mr-2" /> },
@@ -76,7 +83,7 @@ export function Navbar() {
                   {item.items ? (
                     <>
                       <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent">
-                        <div className={`flex items-center text-sm font-medium transition-colors hover:text-primary cursor-pointer ${location.startsWith(item.path) ? "text-primary font-bold" : "text-muted-foreground"}`}>
+                        <div className={`flex items-center text-sm font-medium transition-colors hover:text-primary cursor-pointer ${isActive("/market") ? "text-primary font-bold" : "text-muted-foreground"}`}>
                           {item.name}
                         </div>
                       </NavigationMenuTrigger>

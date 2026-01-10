@@ -19,8 +19,9 @@ function Router() {
       <Route path="/article/:slug" component={ArticleDetail} />
       <Route path="/market/:category" component={MarketCategoryPage} />
       <Route path="/category/:category" component={CategoryPage} />
+      {/* Analytics is already protected inside the component */}
       <Route path="/analytics" component={Analytics} />
-      <Route path="/admin" component={AdminCMS} />
+      <Route path="/adminCMS" component={AdminCMS} />
       <Route path="/search" component={Search} />
       <Route component={NotFound} />
     </Switch>

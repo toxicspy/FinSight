@@ -17,6 +17,7 @@ import { Loader2, Pencil, Trash2, Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { AdminLogin } from "@/components/AdminLogin";
 
 // Schema for the form
 const formSchema = insertArticleSchema.extend({
@@ -34,6 +35,7 @@ export default function AdminCMS() {
 
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -93,15 +95,30 @@ export default function AdminCMS() {
   };
 
   function onSubmit(data: FormValues) {
+    // Simple sanitization
+    const sanitize = (str: string) => {
+      const div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
+    };
+
+    const sanitizedData = {
+      ...data,
+      title: sanitize(data.title),
+      summary: sanitize(data.summary),
+      // For content we might allow some tags if it's markdown, but for now strict text is safer
+      content: data.content, // Usually handled by a markdown renderer which does its own sanitization
+    };
+
     if (editingArticle) {
-      updateArticle.mutate({ id: editingArticle.id, data }, {
+      updateArticle.mutate({ id: editingArticle.id, data: sanitizedData }, {
         onSuccess: () => {
           setEditingArticle(null);
           setIsFormVisible(false);
         },
       });
     } else {
-      createArticle.mutate(data, {
+      createArticle.mutate(sanitizedData, {
         onSuccess: () => {
           form.reset();
           setIsFormVisible(false);
@@ -125,6 +142,10 @@ export default function AdminCMS() {
   if (!user) {
     window.location.href = "/api/login";
     return null;
+  }
+
+  if (!isAdminLoggedIn) {
+    return <AdminLogin onLogin={() => setIsAdminLoggedIn(true)} />;
   }
 
   return (

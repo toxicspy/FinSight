@@ -1,0 +1,37 @@
+# -----------------------------------------------
+# Advanced Robots.txt for Your Website
+# SEO-Friendly: Allows only public content
+# Blocks admin, debug, CMS, drafts
+# -----------------------------------------------
+
+# Applies to all search engines
+User-agent: *
+
+# BLOCK private/admin pages
+Disallow: /admin
+Disallow: /adminCMS
+Disallow: /debug-posts
+Disallow: /login
+Disallow: /drafts
+Disallow: /temp
+Disallow: /test
+
+# BLOCK category pages that don't exist or placeholders
+Disallow: /old
+Disallow: /private
+Disallow: /secret
+
+# ALLOW public categories (your main content)
+Allow: /category/market-news
+Allow: /category/cryptocurrency
+Allow: /category/personal-finance
+Allow: /category/ipo-analysis
+Allow: /category/stock-ideas
+Allow: /category/fpo-analysis
+Allow: /category/results
+
+# ALLOW homepage
+Allow: /
+
+# Sitemap (if you generate one later)
+# Sitemap: https://yourwebsite.com/sitemap.xml

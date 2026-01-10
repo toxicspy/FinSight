@@ -150,3 +150,17 @@ export function useDeleteArticle() {
     },
   });
 }
+
+// Search articles
+export function useSearchArticles(query: string) {
+  return useQuery({
+    queryKey: [api.articles.search.path, query],
+    queryFn: async () => {
+      const url = buildUrl(api.articles.search.path);
+      const res = await fetch(`${url}?q=${encodeURIComponent(query)}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to search articles");
+      return api.articles.search.responses[200].parse(await res.json());
+    },
+    enabled: !!query,
+  });
+}

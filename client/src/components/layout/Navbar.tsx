@@ -16,8 +16,16 @@ import { useState } from "react";
 
 export function Navbar() {
   const { user, logout } = useAuth();
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      setLocation(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   const isActive = (path: string) => location === path;
 
@@ -109,14 +117,16 @@ export function Navbar() {
 
         {/* Right Side Actions */}
         <div className="hidden md:flex items-center space-x-4">
-          <div className="relative w-64">
+          <form onSubmit={handleSearch} className="relative w-64">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <input
               type="search"
               placeholder="Search stocks, news..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full rounded-full bg-secondary px-9 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
-          </div>
+          </form>
 
           {user ? (
             <div className="flex items-center gap-4">

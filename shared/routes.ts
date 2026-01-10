@@ -63,6 +63,16 @@ export const api = {
         404: errorSchemas.notFound,
       },
     },
+    search: {
+      method: 'GET' as const,
+      path: '/api/search',
+      input: z.object({
+        q: z.string(),
+      }),
+      responses: {
+        200: z.array(z.custom<typeof articles.$inferSelect>()),
+      },
+    },
   },
   stocks: {
     list: {

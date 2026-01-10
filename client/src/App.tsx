@@ -10,6 +10,7 @@ import CategoryPage from "@/pages/CategoryPage";
 import MarketCategoryPage from "@/pages/MarketCategoryPage";
 import Analytics from "@/pages/Analytics";
 import AdminCMS from "@/pages/AdminCMS";
+import Search from "./pages/Search";
 
 function Router() {
   return (
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/category/:category" component={CategoryPage} />
       <Route path="/analytics" component={Analytics} />
       <Route path="/admin" component={AdminCMS} />
+      <Route path="/search" component={Search} />
       <Route component={NotFound} />
     </Switch>
   );

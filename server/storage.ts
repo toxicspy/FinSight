@@ -4,7 +4,7 @@ import {
   type Article, type InsertArticle,
   type Stock, type InsertStock
 } from "@shared/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 import { authStorage, type IAuthStorage } from "./replit_integrations/auth/storage";
 
 export interface IStorage extends IAuthStorage {
@@ -17,6 +17,7 @@ export interface IStorage extends IAuthStorage {
   getStocks(): Promise<Stock[]>;
   getStock(symbol: string): Promise<Stock | undefined>;
   createStock(stock: InsertStock): Promise<Stock>;
+  searchArticles(query: string): Promise<Article[]>;
 }
 
 export class DatabaseStorage extends (authStorage.constructor as { new (): IAuthStorage }) implements IStorage {
@@ -75,6 +76,17 @@ export class DatabaseStorage extends (authStorage.constructor as { new (): IAuth
   async createStock(stock: InsertStock): Promise<Stock> {
     const [newStock] = await db.insert(stocks).values(stock).returning();
     return newStock;
+  }
+
+  async searchArticles(query: string): Promise<Article[]> {
+    const results = await db
+      .select()
+      .from(articles)
+      .where(
+        sql`LOWER(${articles.title}) LIKE LOWER(${'%' + query + '%'}) OR LOWER(${articles.content}) LIKE LOWER(${'%' + query + '%'})`
+      )
+      .orderBy(desc(articles.publishedAt));
+    return results;
   }
 }
 

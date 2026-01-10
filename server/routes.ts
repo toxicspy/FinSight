@@ -90,6 +90,20 @@ export async function registerRoutes(
     res.sendStatus(204);
   });
 
+  app.get(api.articles.search.path, async (req, res) => {
+    try {
+      const { q } = api.articles.search.input.parse(req.query);
+      const results = await storage.searchArticles(q);
+      res.json(results);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid search query" });
+      } else {
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  });
+
   // Stocks Routes
   app.get(api.stocks.list.path, async (req, res) => {
     const stocks = await storage.getStocks();

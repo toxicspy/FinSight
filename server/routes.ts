@@ -136,13 +136,13 @@ export async function registerRoutes(
       xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
 
       // Homepage
-      xml += \`
+      xml += `
   <url>
-    <loc>\${baseUrl}/</loc>
-    <lastmod>\${new Date().toISOString().split("T")[0]}</lastmod>
+    <loc>${baseUrl}/</loc>
+    <lastmod>${new Date().toISOString().split("T")[0]}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-  </url>\`;
+  </url>`;
 
       // Main Categories
       const categories = [
@@ -156,24 +156,24 @@ export async function registerRoutes(
       ];
 
       categories.forEach(cat => {
-        xml += \`
+        xml += `
   <url>
-    <loc>\${baseUrl}/category/\${cat}</loc>
-    <lastmod>\${new Date().toISOString().split("T")[0]}</lastmod>
+    <loc>${baseUrl}/category/${cat}</loc>
+    <lastmod>${new Date().toISOString().split("T")[0]}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-  </url>\`;
+  </url>`;
       });
 
       // All Articles
       articles.forEach(article => {
-        xml += \`
+        xml += `
   <url>
-    <loc>\${baseUrl}/post/\${article.slug}</loc>
-    <lastmod>\${new Date(article.publishedAt || new Date()).toISOString().split("T")[0]}</lastmod>
+    <loc>${baseUrl}/post/${article.slug}</loc>
+    <lastmod>${new Date(article.publishedAt || new Date()).toISOString().split("T")[0]}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-  </url>\`;
+  </url>`;
       });
 
       xml += "</urlset>";

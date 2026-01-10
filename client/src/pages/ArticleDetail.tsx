@@ -1,4 +1,4 @@
-import { useArticle } from "@/hooks/use-articles";
+import { useArticle, useArticles } from "@/hooks/use-articles";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useRoute } from "wouter";
@@ -9,11 +9,19 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Share2, Bookmark, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { NewsCard } from "@/components/articles/NewsCard";
 
 export default function ArticleDetail() {
   const [_, params] = useRoute("/article/:slug");
   const slug = params?.slug || "";
   const { data: article, isLoading } = useArticle(slug);
+  const { data: allArticles } = useArticles();
+
+  const moreArticles = allArticles
+    ? allArticles
+        .filter((a) => a.id !== article?.id)
+        .slice(0, 3)
+    : [];
 
   if (isLoading) {
     return (
@@ -96,7 +104,7 @@ export default function ArticleDetail() {
         </article>
 
         {/* Disclaimer */}
-        <Alert className="bg-secondary/50 border-primary/20">
+        <Alert className="bg-secondary/50 border-primary/20 mb-16">
           <AlertCircle className="h-4 w-4 text-primary" />
           <AlertTitle className="text-primary font-bold mb-2">Investment Disclaimer</AlertTitle>
           <AlertDescription className="text-muted-foreground text-sm">
@@ -104,6 +112,20 @@ export default function ArticleDetail() {
             Investments in securities market are subject to market risks. Read all the related documents carefully before investing.
           </AlertDescription>
         </Alert>
+
+        {/* More Articles Section */}
+        {moreArticles.length > 0 && (
+          <div className="mt-16 pt-16 border-t border-border">
+            <h2 className="text-2xl font-serif font-bold mb-8 text-foreground">
+              More Articles You May Like
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {moreArticles.map((a) => (
+                <NewsCard key={a.id} article={a} />
+              ))}
+            </div>
+          </div>
+        )}
 
       </main>
       <Footer />

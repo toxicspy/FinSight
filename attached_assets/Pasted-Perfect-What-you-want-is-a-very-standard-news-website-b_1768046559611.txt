@@ -1,0 +1,197 @@
+Perfect 👍
+What you want is a **very standard news-website behavior** (used by Trade Brains, Moneycontrol, etc.):
+
+> 🔹 When a user opens ONE full article
+> 🔹 After the article content **ends**
+> 🔹 Show **other articles as cards / list**
+> 🔹 User can choose which one to read fully
+> 🔹 Page should NOT feel “empty” after scrolling
+
+This is called:
+👉 **“Related / More Articles section after content”**
+
+Below is a **CLEAR + COPY-PASTE solution for your Express CMS (Replit)**.
+
+---
+
+## 🧠 CONCEPT (IMPORTANT)
+
+You already have:
+
+* Full article page: `/post/:id`
+
+We will:
+1️⃣ Show **full content normally**
+2️⃣ After content ends → show **More Articles**
+3️⃣ Each article shows **title + date + short preview + Read More**
+
+---
+
+## ✅ STEP 1: UPDATE YOUR FULL POST ROUTE
+
+### 🔹 Replace your existing `/post/:id` route with this
+
+```js
+app.get("/post/:id", (req, res) => {
+  const posts = JSON.parse(fs.readFileSync("database.json"));
+
+  const post = posts.find(p => p.id == req.params.id);
+  if (!post) return res.send("Post not found");
+
+  // Other posts (exclude current one)
+  const otherPosts = posts
+    .filter(p => p.id != post.id && p.status === "published")
+    .slice(-5)
+    .reverse();
+
+  let html = `
+    <html>
+    <head>
+      <title>${post.title}</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          background: #f9f9f9;
+          padding: 20px;
+        }
+        .post-container {
+          background: #fff;
+          padding: 25px;
+          border-radius: 8px;
+        }
+        .post-meta {
+          color: #666;
+          font-size: 14px;
+          margin-bottom: 15px;
+        }
+        .more-posts {
+          margin-top: 40px;
+        }
+        .more-posts h2 {
+          color: #137333;
+        }
+        .post-card {
+          background: #fff;
+          padding: 15px;
+          margin-bottom: 15px;
+          border-radius: 6px;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .post-card h3 {
+          margin: 0 0 8px;
+        }
+        .post-card small {
+          color: #777;
+        }
+        .post-card a {
+          color: #137333;
+          text-decoration: none;
+          font-weight: 600;
+        }
+      </style>
+    </head>
+    <body>
+
+      <div class="post-container">
+        <h1>${post.title}</h1>
+
+        <div class="post-meta">
+          ${formatDateTime(post.createdAt)} | ${post.category.replace(/-/g, " ")}
+        </div>
+
+        <div class="post-content">
+          ${post.content}
+        </div>
+      </div>
+
+      <div class="more-posts">
+        <h2>More Articles You May Like</h2>
+  `;
+
+  if (otherPosts.length === 0) {
+    html += `<p>No more articles available.</p>`;
+  }
+
+  otherPosts.forEach(p => {
+    html += `
+      <div class="post-card">
+        <h3>${p.title}</h3>
+        <small>${formatDateTime(p.createdAt)}</small>
+        <p>${p.content.replace(/<[^>]*>/g, "").substring(0, 120)}...</p>
+        <a href="/post/${p.id}">Read Full Article →</a>
+      </div>
+    `;
+  });
+
+  html += `
+      </div>
+    </body>
+    </html>
+  `;
+
+  res.send(html);
+});
+```
+
+---
+
+## ✅ STEP 2: WHAT THIS DOES (VERY IMPORTANT)
+
+✔ Shows **FULL article first**
+✔ When content ends → **More Articles section appears**
+✔ Each article:
+
+* Title
+* Date & time
+* Short preview
+* Read Full Article button
+
+✔ User chooses what to read next
+✔ No empty scrolling
+
+---
+
+## 🧠 HOW IT LOOKS (USER EXPERIENCE)
+
+```
+[ FULL ARTICLE CONTENT ]
+[ FULL ARTICLE CONTENT ]
+[ FULL ARTICLE CONTENT ]
+
+--------------------------------
+More Articles You May Like
+--------------------------------
+• IPO Analysis: Tata Tech
+  06 Jan 2026, 10:45 AM
+  Short preview...
+  Read Full Article →
+
+• Large Cap Stocks to Watch
+  05 Jan 2026, 6:20 PM
+  Short preview...
+  Read Full Article →
+```
+
+Exactly like a **real financial news site**.
+
+---
+
+## 🔥 OPTIONAL IMPROVEMENTS (NEXT LEVEL)
+
+If you want, I can add:
+
+* Show only **same-category articles**
+* Show **Trending / Most Read**
+* Add **thumbnail images**
+* Infinite scroll
+* Sticky sidebar recommendations
+* “Next Article →” auto suggestion
+
+---
+
+## 🧠 ONE-LINE SUMMARY
+
+> After the full content ends, you show other article previews so users can choose what to read next, keeping the page engaging and professional.
+
+If you want the **same-category only** version, just say
+👉 **“same category only”**

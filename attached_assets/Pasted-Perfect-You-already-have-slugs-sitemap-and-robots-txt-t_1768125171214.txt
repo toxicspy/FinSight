@@ -1,0 +1,192 @@
+Perfect 👍
+You already have **slugs, sitemap, and robots.txt** — that’s exactly the right order.
+Now **META** is the next big SEO win 🔥
+
+I’ll explain **what meta you need**, then give you **copy-paste–ready code** that fits your **Vite + React CMS setup**.
+
+---
+
+# ✅ META you MUST have (Trade Brains–level)
+
+You need meta at **2 levels**:
+
+## 1️⃣ Global Meta (entire website)
+
+## 2️⃣ Article/Page Meta (dynamic, per post)
+
+---
+
+## 1️⃣ GLOBAL META (Homepage + default)
+
+📍 **Where:** `index.html`
+
+### 🔹 What to add inside `<head>`
+
+```html
+<!-- BASIC SEO -->
+<title>YourSiteName – Stock Market, Finance & Crypto News</title>
+<meta name="description" content="Latest stock market news, personal finance tips, IPO analysis, and cryptocurrency updates in India." />
+
+<!-- KEYWORDS (optional but fine) -->
+<meta name="keywords" content="stock market, finance news, IPO, crypto, personal finance, Indian markets" />
+
+<!-- AUTHOR -->
+<meta name="author" content="YourSiteName Team" />
+
+<!-- VIEWPORT -->
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<!-- ROBOTS -->
+<meta name="robots" content="index, follow" />
+
+<!-- CANONICAL -->
+<link rel="canonical" href="https://yoursite.com/" />
+
+<!-- OPEN GRAPH (Social Sharing) -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="YourSiteName – Stock Market & Finance News" />
+<meta property="og:description" content="Stay updated with stock market trends, IPOs, crypto and personal finance." />
+<meta property="og:image" content="https://yoursite.com/og-image.jpg" />
+<meta property="og:url" content="https://yoursite.com/" />
+
+<!-- TWITTER -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="YourSiteName – Finance & Crypto" />
+<meta name="twitter:description" content="Stock market insights, IPOs, and crypto updates." />
+<meta name="twitter:image" content="https://yoursite.com/og-image.jpg" />
+```
+
+✅ This handles **Google + WhatsApp + Twitter + LinkedIn**
+
+---
+
+## 2️⃣ DYNAMIC META (VERY IMPORTANT 🔥)
+
+This is what **Trade Brains, Moneycontrol, ET** do.
+
+Each article must have:
+
+* Unique `<title>`
+* Unique `<meta description>`
+* Unique OpenGraph image
+* Canonical URL
+
+---
+
+## 🔧 Install Meta Manager (required)
+
+Run:
+
+```bash
+npm install react-helmet-async
+```
+
+---
+
+## 🔌 Wrap your app (ONE TIME)
+
+📍 `main.tsx` or `App.tsx`
+
+```tsx
+import { HelmetProvider } from "react-helmet-async";
+
+root.render(
+  <HelmetProvider>
+    <App />
+  </HelmetProvider>
+);
+```
+
+---
+
+## 📰 ARTICLE META (Dynamic)
+
+📍 In your **Article Page component**
+
+### ✅ Add this at the TOP of the component:
+
+```tsx
+import { Helmet } from "react-helmet-async";
+```
+
+---
+
+### ✅ Inside `return (...)` BEFORE content:
+
+```tsx
+<Helmet>
+  <title>{article.title} | YourSiteName</title>
+
+  <meta
+    name="description"
+    content={article.summary || article.title}
+  />
+
+  <link
+    rel="canonical"
+    href={`https://yoursite.com/${article.slug}`}
+  />
+
+  {/* Open Graph */}
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content={article.title} />
+  <meta property="og:description" content={article.summary} />
+  <meta property="og:image" content={article.imageUrl} />
+  <meta property="og:url" content={`https://yoursite.com/${article.slug}`} />
+
+  {/* Twitter */}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={article.title} />
+  <meta name="twitter:description" content={article.summary} />
+  <meta name="twitter:image" content={article.imageUrl} />
+</Helmet>
+```
+
+---
+
+## 🧠 PRO SEO TIP (Trade Brains trick)
+
+### 🔹 Meta Title Formula:
+
+```
+Article Title – Category | Brand
+```
+
+Example:
+
+```
+Bitcoin Price Today – Cryptocurrency | YourSiteName
+```
+
+### 🔹 Meta Description Formula:
+
+```
+150–160 characters. Include numbers + year if possible.
+```
+
+---
+
+## ✅ Final SEO Checklist (you’re almost pro)
+
+| Feature       | Status  |
+| ------------- | ------- |
+| Slugs         | ✅       |
+| Sitemap       | ✅       |
+| Robots        | ✅       |
+| Canonical     | ✅       |
+| OpenGraph     | ✅       |
+| Twitter Cards | ✅       |
+| Dynamic Meta  | 🔥 DONE |
+
+---
+
+## 🚀 NEXT (Optional but powerful)
+
+If you want, next I can help you with:
+
+* ⭐ Google Discover optimization
+* 📊 Structured Data (JSON-LD schema)
+* 🔍 Rich results (Article / Breadcrumb)
+* ⚡ Page speed SEO
+
+Just tell me 👍

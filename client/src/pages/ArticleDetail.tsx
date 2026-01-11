@@ -1,4 +1,5 @@
 import { useArticle, useArticles } from "@/hooks/use-articles";
+import { Helmet } from "react-helmet-async";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useRoute } from "wouter";
@@ -45,6 +46,20 @@ export default function ArticleDetail() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans">
+      <Helmet>
+        <title>{article.title} | FinSight</title>
+        <meta name="description" content={article.summary || article.title} />
+        <link rel="canonical" href={window.location.href} />
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={article.title} />
+        <meta property="og:description" content={article.summary} />
+        <meta property="og:image" content={article.imageUrl} />
+        <meta property="og:url" content={window.location.href} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={article.title} />
+        <meta name="twitter:description" content={article.summary} />
+        <meta name="twitter:image" content={article.imageUrl} />
+      </Helmet>
       <Navbar />
       
       <main className="flex-grow container mx-auto px-4 py-12 max-w-4xl">

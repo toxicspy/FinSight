@@ -59,6 +59,59 @@ export default function ArticleDetail() {
         <meta name="twitter:title" content={article.title} />
         <meta name="twitter:description" content={article.summary} />
         <meta name="twitter:image" content={article.imageUrl} />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "NewsArticle",
+            "headline": article.title,
+            "description": article.summary,
+            "image": [article.imageUrl],
+            "author": {
+              "@type": "Person",
+              "name": article.authorName
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "FinSight",
+              "logo": {
+                "@type": "ImageObject",
+                "url": `${window.location.origin}/favicon.png`
+              }
+            },
+            "datePublished": article.publishedAt,
+            "dateModified": article.publishedAt,
+            "mainEntityOfPage": {
+              "@type": "WebPage",
+              "@id": window.location.href
+            }
+          })}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": window.location.origin
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": article.category,
+                "item": `${window.location.origin}/category/${encodeURIComponent(article.category)}`
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "name": article.title,
+                "item": window.location.href
+              }
+            ]
+          })}
+        </script>
       </Helmet>
       <Navbar />
       
@@ -110,6 +163,7 @@ export default function ArticleDetail() {
             src={article.imageUrl} 
             alt={article.title}
             className="w-full h-full object-cover"
+            loading="lazy"
           />
         </div>
 

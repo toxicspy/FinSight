@@ -1,0 +1,200 @@
+Awesome 🚀
+Now we move into **ADVANCED SEO** — this is what puts sites like **Trade Brains, ET, Moneycontrol** ahead.
+
+We’ll do this in the **correct professional order** 👇
+
+---
+
+# 🔥 PHASE 1: STRUCTURED DATA (JSON-LD) — MOST IMPORTANT
+
+This helps Google understand:
+
+* What is an article
+* Who wrote it
+* When it was published
+* Which image to show
+* Eligibility for **Rich Results & Google Discover**
+
+---
+
+## 1️⃣ ARTICLE SCHEMA (JSON-LD)
+
+📍 **Where:** Same Article page where you added `Helmet`
+
+### ✅ Add BELOW your `<Helmet>` block:
+
+```tsx
+<script type="application/ld+json">
+{JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "headline": article.title,
+  "description": article.summary,
+  "image": [article.imageUrl],
+  "author": {
+    "@type": "Person",
+    "name": article.authorName
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "YourSiteName",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://yoursite.com/logo.png"
+    }
+  },
+  "datePublished": article.publishedAt,
+  "dateModified": article.updatedAt || article.publishedAt,
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": `https://yoursite.com/${article.slug}`
+  }
+})}
+</script>
+```
+
+✅ This is **exactly what Google wants**
+
+---
+
+## 2️⃣ BREADCRUMB SCHEMA (Extra SEO boost)
+
+📍 Same page
+
+```tsx
+<script type="application/ld+json">
+{JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://yoursite.com"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": article.category,
+      "item": `https://yoursite.com/category/${article.category}`
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": article.title,
+      "item": `https://yoursite.com/${article.slug}`
+    }
+  ]
+})}
+</script>
+```
+
+📈 Helps:
+
+* Breadcrumb display in Google
+* Better CTR
+
+---
+
+# 🔥 PHASE 2: GOOGLE DISCOVER OPTIMIZATION
+
+Google Discover is **free traffic jackpot** 💰
+
+### ✅ REQUIRED:
+
+* Large images
+* Fresh content
+* Correct meta
+
+### 🔹 Add this META globally (index.html)
+
+```html
+<meta name="google-site-verification" content="YOUR_CODE" />
+<meta name="googlebot" content="index, follow, max-image-preview:large" />
+```
+
+🚀 `max-image-preview:large` is **mandatory** for Discover
+
+---
+
+# 🔥 PHASE 3: CATEGORY PAGES SEO
+
+Each category should also have meta.
+
+📍 `CategoryPage.tsx`
+
+```tsx
+<Helmet>
+  <title>{category} News & Updates | YourSiteName</title>
+  <meta
+    name="description"
+    content={`Latest ${category} news, analysis, and updates on YourSiteName.`}
+  />
+  <link
+    rel="canonical"
+    href={`https://yoursite.com/category/${category}`}
+  />
+</Helmet>
+```
+
+---
+
+# 🔥 PHASE 4: INTERNAL LINKING (HUGE SEO BOOST)
+
+Inside article content:
+
+* Link to **same category articles**
+* Link to **important evergreen articles**
+
+Example:
+
+```html
+<a href="/cryptocurrency/bitcoin-price-today">
+Bitcoin price today
+</a>
+```
+
+Google LOVES this.
+
+---
+
+# 🔥 PHASE 5: PAGE SPEED & CORE WEB VITALS
+
+### ✅ DO THIS:
+
+* Use **WebP images**
+* Lazy load images
+
+```html
+<img src={article.imageUrl} loading="lazy" />
+```
+
+* Avoid huge images (>300KB)
+
+---
+
+# ✅ FINAL SEO STATUS (You’re doing PRO work)
+
+| Feature           | Status |
+| ----------------- | ------ |
+| Meta tags         | ✅      |
+| Open Graph        | ✅      |
+| Twitter cards     | ✅      |
+| Structured Data   | 🔥     |
+| Breadcrumb schema | 🔥     |
+| Discover ready    | 🔥     |
+| Internal linking  | 🔥     |
+
+---
+
+# 🚀 WHAT NEXT? (Choose one)
+
+Reply with **one number** 👇
+1️⃣ Google Search Console setup
+2️⃣ Automatic meta from CMS (AI-like)
+3️⃣ Google News approval prep
+4️⃣ Adsense-ready SEO
+5️⃣ Advanced site security (headers + CSP)
+
+You’re very close to a **real finance media site** now 💯

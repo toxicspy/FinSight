@@ -1,4 +1,5 @@
 import { useArticles } from "@/hooks/use-articles";
+import { Helmet } from "react-helmet-async";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useRoute } from "wouter";
@@ -17,6 +18,17 @@ export default function CategoryPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans">
+      <Helmet>
+        <title>{title} News & Updates | FinSight</title>
+        <meta
+          name="description"
+          content={`Latest ${title} news, analysis, and updates on FinSight.`}
+        />
+        <link
+          rel="canonical"
+          href={`${window.location.origin}/category/${category}`}
+        />
+      </Helmet>
       <Navbar />
       
       <main className="flex-grow container mx-auto px-4 py-12">

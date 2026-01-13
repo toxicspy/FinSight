@@ -92,7 +92,6 @@ export async function registerRoutes(
 
   app.get(api.articles.search.path, async (req, res) => {
     try {
-      console.log("Search parameters received:", req.query);
       const { q } = api.articles.search.input.parse(req.query);
       
       if (!q || q.trim() === "") {
@@ -100,7 +99,6 @@ export async function registerRoutes(
       }
 
       const results = await storage.searchArticles(q.trim());
-      console.log(`Found ${results.length} results for query: "${q}"`);
       res.json(results);
     } catch (err) {
       if (err instanceof z.ZodError) {

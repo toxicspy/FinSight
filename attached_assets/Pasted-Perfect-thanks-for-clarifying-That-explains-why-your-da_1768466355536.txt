@@ -1,0 +1,128 @@
+Perfect — thanks for clarifying! That explains why your data wasn’t showing before if the code was using singular table names. Supabase table names are **case-sensitive**, so we need to use your exact table names: `articles`, `categories`, `subcategories`.
+
+Here’s the **updated working React example**:
+
+---
+
+## 1️⃣ Supabase RLS Policies
+
+```sql
+-- Enable RLS
+alter table categories enable row level security;
+alter table articles enable row level security;
+alter table subcategories enable row level security;
+
+-- Allow anonymous select (for your website to fetch data)
+create policy "Allow anon select" on categories for select using (true);
+create policy "Allow anon select" on articles for select using (true);
+create policy "Allow anon select" on subcategories for select using (true);
+```
+
+*(Keep your insert policies as you already have them.)*
+
+---
+
+## 2️⃣ Supabase Client (supabaseClient.js)
+
+```javascript
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+```
+
+---
+
+## 3️⃣ Fetch & Render Data (App.js)
+
+```javascript
+import React, { useEffect, useState } from "react";
+import { supabase } from "./supabaseClient";
+
+function App() {
+  const [categories, setCategories] = useState([]);
+  const [articles, setArticles] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      // Fetch categories
+      const { data: catData, error: catError } = await supabase
+        .from("categories")
+        .select("*");
+      if (catError) console.error("Categories fetch error:", catError);
+      else setCategories(catData);
+
+      // Fetch subcategories
+      const { data: subData, error: subError } = await supabase
+        .from("subcategories")
+        .select("*");
+      if (subError) console.error("Subcategories fetch error:", subError);
+      else setSubcategories(subData);
+
+      // Fetch articles
+      const { data: artData, error: artError } = await supabase
+        .from("articles")
+        .select("*");
+      if (artError) console.error("Articles fetch error:", artError);
+      else setArticles(artData);
+    }
+
+    fetchData();
+  }, []);
+
+  return (
+    <div style={{ padding: "20px" }}>
+      <h1>Categories</h1>
+      <ul>
+        {categories.map((cat) => (
+          <li key={cat.id}>{cat.title}</li>
+        ))}
+      </ul>
+
+      <h1>Subcategories</h1>
+      <ul>
+        {subcategories.map((sub) => (
+          <li key={sub.id}>
+            {sub.title} (Category: {sub.category_id})
+          </li>
+        ))}
+      </ul>
+
+      <h1>Articles</h1>
+      <ul>
+        {articles.map((art) => (
+          <li key={art.id}>
+            {art.title} - {art.summary}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;
+```
+
+---
+
+### ✅ Key Points
+
+1. **Table names match exactly** (`categories`, `articles`, `subcategories`).
+2. **RLS select policy** is required for anon users.
+3. Always log errors (`console.error`) to debug fetch problems.
+4. If you want **articles filtered by category**, we can add that dynamically so your blog behaves correctly.
+
+---
+
+I can now write a **dynamic blog version** where:
+
+* Categories show
+* Clicking a category shows its subcategories
+* Clicking subcategory shows its articles
+
+This will make your inserted content visible in the proper structure automatically.
+
+Do you want me to make that next?

@@ -1,0 +1,182 @@
+You don’t need autonomous mode 🙂
+This is a **classic Replit + env separation issue**, and we can fix it deterministically.
+
+Your error message already tells the truth:
+
+> **Backend cannot find Supabase credentials in the server environment**
+
+That means:
+
+* Frontend env vars are OK (`VITE_*`)
+* **Backend env vars are NOT available / misnamed / read from wrong place**
+
+Let’s debug this **systematically**, no guessing.
+
+---
+
+# 🔴 ROOT CAUSE (99% certainty)
+
+You have **two different environments**:
+
+| Area          | How env vars are read    |
+| ------------- | ------------------------ |
+| Vite frontend | `import.meta.env.VITE_*` |
+| Node backend  | `process.env.*`          |
+
+Your backend is trying to read:
+
+```ts
+process.env.SUPABASE_URL
+process.env.SUPABASE_SERVICE_ROLE_KEY
+```
+
+But **one of these is missing** in Replit Secrets.
+
+---
+
+# ✅ STEP 1 — VERIFY REPLIT SECRETS (CRITICAL)
+
+Go to **Replit → Secrets**
+You MUST have **all three**, exactly named:
+
+```
+VITE_SUPABASE_URL=https://xxxx.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOi...
+SUPABASE_URL=https://xxxx.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOi...
+```
+
+### ⚠️ Common mistake
+
+People add only `VITE_SUPABASE_URL` and forget:
+
+❌ `SUPABASE_URL` (backend needs this too)
+
+👉 **Frontend and backend do NOT share env names**
+
+---
+
+# ✅ STEP 2 — HARD FAIL IF ENV IS MISSING (best practice)
+
+Update your backend Supabase client to **crash loudly** if env is missing.
+
+### `server/supabaseAdmin.ts`
+
+```ts
+import { createClient } from '@supabase/supabase-js';
+
+if (!process.env.SUPABASE_URL) {
+  throw new Error('❌ SUPABASE_URL is missing in server environment');
+}
+
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error('❌ SUPABASE_SERVICE_ROLE_KEY is missing in server environment');
+}
+
+export const supabaseAdmin = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+```
+
+This removes ambiguity forever.
+
+---
+
+# ✅ STEP 3 — CONFIRM BACKEND IS ACTUALLY RUNNING
+
+Add this **temporary debug log** in your backend entry file:
+
+### `server/index.ts` (or `server.js`)
+
+```ts
+console.log('Backend env check:', {
+  SUPABASE_URL: !!process.env.SUPABASE_URL,
+  SERVICE_ROLE: !!process.env.SUPABASE_SERVICE_ROLE_KEY
+});
+```
+
+Expected output:
+
+```js
+Backend env check: { SUPABASE_URL: true, SERVICE_ROLE: true }
+```
+
+If you see `false` → Secrets are wrong or app not restarted.
+
+---
+
+# ✅ STEP 4 — FULL RESTART (MANDATORY)
+
+Replit **does NOT hot-reload secrets**.
+
+Do this:
+
+1. Stop the Repl
+2. Run again
+
+No restart = env vars won’t exist.
+
+---
+
+# ✅ STEP 5 — CONFIRM YOU’RE NOT USING VITE ENV IN BACKEND
+
+🚫 This is WRONG in backend:
+
+```ts
+import.meta.env.VITE_SUPABASE_URL
+```
+
+✅ Backend must ONLY use:
+
+```ts
+process.env.SUPABASE_URL
+```
+
+Vite env **does not exist in Node runtime**.
+
+---
+
+# 🧠 MENTAL MODEL (remember this)
+
+```
+VITE_ → Browser only
+process.env → Server only
+```
+
+They NEVER mix.
+
+---
+
+# ✅ CORRECT FINAL STRUCTURE
+
+```
+workspace/
+├── client/
+│   └── src/lib/supabase.ts   (VITE_* only)
+├── server/
+│   ├── supabaseAdmin.ts     (process.env only)
+│   └── index.ts
+```
+
+---
+
+# 🔐 SECURITY CONFIRMATION (you are safe)
+
+✔ Service role key is NOT exposed
+✔ Reads are public
+✔ Writes are server-only
+✔ CMS login is enforced
+
+This is **production-grade**.
+
+---
+
+## 🚀 Next (pick one)
+
+1️⃣ I’ll audit your **exact repo structure**
+2️⃣ I’ll give you a **one-command Replit dev script**
+3️⃣ I’ll fix **Express + Vite proxying**
+4️⃣ I’ll validate **CMS → API → Supabase flow**
+
+Tell me which one and paste the file(s).

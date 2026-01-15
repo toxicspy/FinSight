@@ -1,4 +1,5 @@
-import { useAuth } from "@/hooks/use-auth";
+import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import { useArticles, useCreateArticle, useUpdateArticle, useDeleteArticle } from "@/hooks/use-articles";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -14,10 +15,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, Pencil, Trash2, Plus } from "lucide-react";
-import { useState, useEffect } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { AdminLogin } from "@/components/AdminLogin";
+import { supabase } from "@/lib/supabase";
 
 // Schema for the form
 const formSchema = insertArticleSchema.extend({
@@ -27,8 +27,22 @@ const formSchema = insertArticleSchema.extend({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function AdminCMS() {
-  const { user, isLoading: authLoading } = useAuth();
+  const [, setLocation] = useLocation();
+  const [user, setUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const { data: articles, isLoading: articlesLoading } = useArticles();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        setLocation("/cms-login");
+      } else {
+        setUser(user);
+      }
+      setAuthLoading(false);
+    });
+  }, [setLocation]);
+
   const createArticle = useCreateArticle();
   const updateArticle = useUpdateArticle();
   const deleteArticle = useDeleteArticle();
@@ -137,16 +151,13 @@ export default function AdminCMS() {
     }
   };
 
-  if (authLoading) return null;
+  if (authLoading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    </div>
+  );
 
-  if (!user) {
-    window.location.href = "/api/login";
-    return null;
-  }
-
-  if (!isAdminLoggedIn) {
-    return <AdminLogin onLogin={() => setIsAdminLoggedIn(true)} />;
-  }
+  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">

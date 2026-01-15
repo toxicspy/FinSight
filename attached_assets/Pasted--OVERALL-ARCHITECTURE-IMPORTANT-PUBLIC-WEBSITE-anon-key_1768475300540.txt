@@ -1,0 +1,218 @@
+# 🧠 OVERALL ARCHITECTURE (IMPORTANT)
+
+```
+PUBLIC WEBSITE (anon key)
+        |
+        v
+Supabase (SELECT only)
+
+CMS (admin panel) → LOGIN REQUIRED
+        |
+        v
+Backend API (service_role key)
+        |
+        v
+Supabase (INSERT / UPDATE / DELETE)
+```
+
+---
+
+# STEP 1️⃣ Enable Supabase Auth (Email login)
+
+Supabase Dashboard → **Authentication → Providers**
+
+Turn ON:
+
+* ✅ Email
+* (Disable others for now)
+
+Save.
+
+---
+
+# STEP 2️⃣ Create editor/admin users
+
+Supabase Dashboard → **Authentication → Users**
+
+➡ Click **Add user**
+
+* Email: your email
+* Password: strong password
+
+This user can now log in to CMS.
+
+---
+
+# STEP 3️⃣ CMS login page (Frontend)
+
+### Example: `cms-login.js`
+
+```js
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
+
+async function login(email, password) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  window.location.href = '/cms';
+}
+```
+
+✔ Uses **anon key**
+✔ Safe
+✔ Auth handled by Supabase
+
+---
+
+# STEP 4️⃣ Protect the CMS (block public access)
+
+### On CMS page load
+
+```js
+const {
+  data: { user }
+} = await supabase.auth.getUser();
+
+if (!user) {
+  window.location.href = '/cms-login';
+}
+```
+
+🚫 Visitors cannot access CMS without login
+
+---
+
+# STEP 5️⃣ Backend API for writing (IMPORTANT)
+
+### ❌ Never insert directly from frontend
+
+### ✅ Always go through backend
+
+#### `server/supabaseAdmin.js`
+
+```js
+import { createClient } from '@supabase/supabase-js';
+
+export const supabaseAdmin = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+```
+
+---
+
+### `server/publishArticle.js`
+
+```js
+import { supabaseAdmin } from './supabaseAdmin.js';
+
+export async function publishArticle(req, res) {
+  const {
+    title,
+    slug,
+    summary,
+    content,
+    category_id,
+    image_url
+  } = req.body;
+
+  const { error } = await supabaseAdmin
+    .from('articles')
+    .insert({
+      title,
+      slug,
+      summary,
+      content,
+      category_id,
+      image_url
+    });
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.json({ success: true });
+}
+```
+
+✔ Uses service role
+✔ Bypasses RLS
+✔ Secure
+
+---
+
+# STEP 6️⃣ Call backend from CMS
+
+### CMS frontend
+
+```js
+await fetch('/api/publish-article', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(formData)
+});
+```
+
+---
+
+# STEP 7️⃣ RLS policies (simple & correct)
+
+### Public reads
+
+```sql
+create policy "Public read articles"
+on articles
+for select
+using (true);
+```
+
+### Optional safety (even though service role bypasses)
+
+```sql
+create policy "Authenticated insert articles"
+on articles
+for insert
+with check (auth.role() = 'authenticated');
+```
+
+---
+
+# 🔐 WHY THIS WORKS PERFECTLY
+
+| Problem            | Solved    |
+| ------------------ | --------- |
+| CMS open to public | ❌ blocked |
+| RLS errors         | ❌ gone    |
+| Anon insert issues | ❌ gone    |
+| Security warnings  | ✅ minimal |
+| Scales to editors  | ✅ yes     |
+
+---
+
+# ⚠️ CRITICAL SECURITY RULES
+
+* Never expose `SERVICE_ROLE_KEY`
+* Always write via backend
+* Keep anon key read-only
+* CMS must require login
+
+---
+
+# 🧠 SIMPLE RULE TO REMEMBER
+
+> **Frontend reads → anon key**
+> **CMS writes → backend + service role**
+
+---

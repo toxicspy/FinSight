@@ -18,6 +18,8 @@ import { Loader2, Pencil, Trash2, Plus } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
+import { queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 // Schema for the form
 const formSchema = insertArticleSchema.extend({
@@ -28,6 +30,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function AdminCMS() {
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const { data: articles, isLoading: articlesLoading } = useArticles();
@@ -108,7 +111,7 @@ export default function AdminCMS() {
     }
   };
 
-  function onSubmit(data: FormValues) {
+  async function onSubmit(data: FormValues) {
     // Simple sanitization
     const sanitize = (str: string) => {
       const div = document.createElement("div");
@@ -133,20 +136,24 @@ export default function AdminCMS() {
       });
     } else {
       // Use the direct API for publishing via Supabase Admin
-      const response = await fetch('/api/admin/articles', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(sanitizedData)
-      });
+      try {
+        const response = await fetch('/api/admin/articles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(sanitizedData)
+        });
 
-      if (response.ok) {
-        queryClient.invalidateQueries({ queryKey: ["/api/articles"] });
-        form.reset();
-        setIsFormVisible(false);
-        toast({ title: "Article published successfully" });
-      } else {
-        const err = await response.json();
-        toast({ variant: "destructive", title: "Failed to publish", description: err.error });
+        if (response.ok) {
+          queryClient.invalidateQueries({ queryKey: ["/api/articles"] });
+          form.reset();
+          setIsFormVisible(false);
+          toast({ title: "Article published successfully" });
+        } else {
+          const err = await response.json();
+          toast({ variant: "destructive", title: "Failed to publish", description: err.error });
+        }
+      } catch (err: any) {
+        toast({ variant: "destructive", title: "Network error", description: err.message });
       }
     }
   }

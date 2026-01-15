@@ -1,0 +1,91 @@
+Ah — that’s important. If your Supabase URL is indeed correct, but you’re **still getting `<!DOCTYPE…` instead of JSON**, then the problem is not the URL itself but **how the request is being sent**. Most likely:
+
+---
+
+### 1️⃣ You are hitting your **frontend URL instead of Supabase API**
+
+* This happens in Vite/Replit if `import.meta.env.VITE_SUPABASE_URL` is undefined or empty.
+* When empty, the client defaults to the **current origin** (your site), which returns HTML (`<!DOCTYPE html>`).
+
+✅ Test: Add this **right before creating the client**:
+
+```ts
+console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
+console.log('Supabase Anon Key length:', import.meta.env.VITE_SUPABASE_ANON_KEY?.length);
+```
+
+* If `Supabase URL:` prints `undefined` or blank → your env vars are **not loading properly**.
+
+---
+
+### 2️⃣ Environment variables in Vite vs Replit
+
+* **Frontend (Vite) requires variables to start with `VITE_`**, e.g.:
+
+```env
+VITE_SUPABASE_URL=https://xyzcompany.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+
+* **Backend / Node scripts** can use normal env vars (without `VITE_`).
+
+* In Replit:
+
+  1. Go to **Secrets (Environment Variables)** → make sure `VITE_SUPABASE_URL` is there.
+  2. **Restart the Replit server** after setting them — otherwise they won’t load.
+
+---
+
+### 3️⃣ You might be using `createClient` in the wrong context
+
+* If you run **frontend code in the browser** with a **server-only URL** (or service key), you can get HTML errors.
+* Make sure you use the **anon key** for browser code.
+
+---
+
+### 4️⃣ Quick check
+
+Create a **tiny test script** inside Replit (Node):
+
+```ts
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+
+console.log('URL:', supabaseUrl);
+console.log('Key length:', supabaseAnonKey?.length);
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+async function test() {
+  const { data, error } = await supabase.auth.getUserByEmail('test@example.com');
+  console.log({ data, error });
+}
+
+test();
+```
+
+* This will **prove whether your client can reach Supabase**.
+* If `data` is null and `error` says `network` or returns HTML → still a connection/env issue.
+
+---
+
+💡 From experience, in Replit **this is almost always caused by one of two things**:
+
+1. The **env variable is missing or misnamed** (`VITE_SUPABASE_URL` vs `SUPABASE_URL`)
+2. The **server hasn’t been restarted** after changing env vars
+
+Even if the URL is correct on the dashboard, **the code isn’t actually using it**.
+
+---
+
+If you want, I can write a **Replit-ready `supabase.ts` setup** that:
+
+* Forces the URL to log at runtime
+* Throws a clear error if undefined
+* Prevents the `<!DOCTYPE>` HTML parse issue completely
+
+This will make login work immediately.
+
+Do you want me to do that?

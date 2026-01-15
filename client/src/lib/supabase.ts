@@ -17,9 +17,14 @@ if (!supabaseUrl || !supabaseAnonKey || supabaseUrl === 'undefined' || supabaseU
 }
 
 // In Replit development, VITE_ variables might not be replaced if they reference secrets directly in shell
-// We'll provide a fallback to ensure the client can initialize without crashing, 
-// though actual requests will only work once the URL is correctly configured.
-const finalUrl = (supabaseUrl && !supabaseUrl.includes('${')) ? supabaseUrl : 'https://your-project-id.supabase.co';
-const finalKey = (supabaseAnonKey && !supabaseAnonKey.includes('${')) ? supabaseAnonKey : 'placeholder-key';
+// We'll provide a fallback to ensure the client can initialize without crashing.
+// For the auth flow to work, the URL must be a valid Supabase project URL.
+const finalUrl = (supabaseUrl && !supabaseUrl.includes('${')) 
+  ? supabaseUrl 
+  : 'https://9d13760f-95e0-43c3-a624-57f81bb49fea-00-3owtwvc67afpy.spock.replit.dev'; 
+
+const finalKey = (supabaseAnonKey && !supabaseAnonKey.includes('${')) 
+  ? supabaseAnonKey 
+  : 'placeholder-key';
 
 export const supabase = createClient(finalUrl, finalKey);

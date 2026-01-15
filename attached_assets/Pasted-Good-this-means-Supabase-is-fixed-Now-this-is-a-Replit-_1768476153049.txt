@@ -1,0 +1,183 @@
+Good — this means **Supabase is fixed** 👍
+Now this is a **Replit + Vite server issue**, not Supabase.
+
+Let’s solve it step-by-step and **get the preview URL back**.
+
+---
+
+## 🔍 What “App is running but no webpage” means
+
+It usually means **one of these**:
+
+1. Vite dev server is running but **not bound to 0.0.0.0**
+2. Vite is running on a port Replit doesn’t expose
+3. Replit doesn’t know which port to preview
+4. Backend server is running, but frontend isn’t
+
+---
+
+## ✅ QUICK CHECK (do this first)
+
+### Look at Replit **Console output**
+
+You should see something like:
+
+```
+Local:   http://localhost:5173/
+Network: http://0.0.0.0:5173/
+```
+
+❌ If you see **only localhost**, Replit can’t preview it.
+
+---
+
+## ✅ FIX 1 — Force Vite to expose the port (MOST COMMON FIX)
+
+### 📁 `vite.config.ts` (or `vite.config.js`)
+
+```ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    host: '0.0.0.0',   // 🔑 REQUIRED for Replit
+    port: 5173,
+    strictPort: true
+  }
+});
+```
+
+✔ This is mandatory on Replit
+✔ Without `host: '0.0.0.0'` → no preview
+
+---
+
+## ✅ FIX 2 — Make sure frontend is actually running
+
+### Check `package.json`
+
+You should have:
+
+```json
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  }
+}
+```
+
+### Start frontend correctly
+
+```bash
+npm run dev
+```
+
+NOT:
+
+```bash
+node server.js
+```
+
+---
+
+## ✅ FIX 3 — Tell Replit which port to expose
+
+Replit automatically exposes the **first detected port**, but sometimes it fails.
+
+### Manual fix
+
+* Click **“Open webview”**
+* Or **“Preview” → “Open in new tab”**
+
+If still blank → continue below.
+
+---
+
+## ✅ FIX 4 — Backend blocking frontend (common mistake)
+
+If you are running **Express + Vite together**, you may be:
+
+* Running only backend
+* Not starting Vite at all
+
+### Correct structure (recommended)
+
+```
+workspace/
+├── client/   (Vite frontend)
+│   └── npm run dev
+├── server/   (Express backend)
+│   └── node index.js
+```
+
+### Use **concurrently** (best)
+
+```bash
+npm install concurrently
+```
+
+#### `package.json`
+
+```json
+{
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix client\" \"npm start --prefix server\""
+  }
+}
+```
+
+Then run:
+
+```bash
+npm run dev
+```
+
+---
+
+## ✅ FIX 5 — Vite preview (production check)
+
+If dev fails, try:
+
+```bash
+npm run build
+npm run preview
+```
+
+This should expose:
+
+```
+http://0.0.0.0:4173
+```
+
+---
+
+## 🔎 FINAL CHECKLIST (90% fixes)
+
+✔ `host: '0.0.0.0'` in vite.config
+✔ VITE_SUPABASE_URL defined
+✔ Replit restarted
+✔ Frontend dev server running
+✔ Correct port (5173)
+✔ No blank white screen errors in console
+
+---
+
+## 🧠 SIMPLE RULE
+
+> **Replit can’t access localhost — only 0.0.0.0**
+
+---
+
+## 🚀 What I can do next (fast)
+
+If you want, paste:
+
+* 📄 your `vite.config.ts`
+* 📄 your `package.json`
+* 📄 your folder structure
+
+I’ll fix it **exactly** for your setup in one reply.

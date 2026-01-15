@@ -5,13 +5,62 @@ import { api } from "@shared/routes";
 import { z } from "zod";
 import { setupAuth, registerAuthRoutes } from "./replit_integrations/auth";
 
+import { supabaseAdmin } from "./lib/supabase-admin";
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // Setup Replit Auth
+  // Setup Replit Auth (Keep if still needed, but we'll use Supabase for CMS)
   await setupAuth(app);
   registerAuthRoutes(app);
+
+  // Secure API route for publishing articles (uses Supabase Admin client)
+  app.post("/api/admin/articles", async (req, res) => {
+    try {
+      // In a real app, verify the Supabase session here
+      const {
+        title,
+        slug,
+        summary,
+        content,
+        category,
+        imageUrl,
+        authorName,
+        isFeatured,
+        isEditorPick
+      } = req.body;
+
+      if (!supabaseAdmin) {
+        return res.status(500).json({ error: "Supabase Admin client not configured" });
+      }
+
+      const { data, error } = await supabaseAdmin
+        .from('articles')
+        .insert({
+          title,
+          slug,
+          summary,
+          content,
+          category,
+          image_url: imageUrl,
+          author_name: authorName,
+          is_featured: isFeatured,
+          is_editor_pick: isEditorPick,
+          status: 'published'
+        })
+        .select()
+        .single();
+
+      if (error) {
+        return res.status(500).json({ error: error.message });
+      }
+
+      res.status(201).json(data);
+    } catch (err) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
 
   // Articles Routes
   app.get(api.articles.list.path, async (req, res) => {

@@ -132,12 +132,22 @@ export default function AdminCMS() {
         },
       });
     } else {
-      createArticle.mutate(sanitizedData, {
-        onSuccess: () => {
-          form.reset();
-          setIsFormVisible(false);
-        },
+      // Use the direct API for publishing via Supabase Admin
+      const response = await fetch('/api/admin/articles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sanitizedData)
       });
+
+      if (response.ok) {
+        queryClient.invalidateQueries({ queryKey: ["/api/articles"] });
+        form.reset();
+        setIsFormVisible(false);
+        toast({ title: "Article published successfully" });
+      } else {
+        const err = await response.json();
+        toast({ variant: "destructive", title: "Failed to publish", description: err.error });
+      }
     }
   }
 

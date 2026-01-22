@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
+import { api } from "@shared/routes";
 import { useArticles, useCreateArticle, useUpdateArticle, useDeleteArticle } from "@/hooks/use-articles";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -144,7 +145,9 @@ export default function AdminCMS() {
         });
 
         if (response.ok) {
-          queryClient.invalidateQueries({ queryKey: ["/api/articles"] });
+          const publishedArticle = await response.json();
+          console.log("Article published successfully:", publishedArticle);
+          await queryClient.invalidateQueries({ queryKey: [api.articles.list.path] });
           form.reset();
           setIsFormVisible(false);
           toast({ title: "Article published successfully" });

@@ -48,5 +48,5 @@ expertMode = true
 [userenv]
 
 [userenv.shared]
-VITE_SUPABASE_ANON_KEY = "${SUPABASE_ANON_KEY}"
-VITE_SUPABASE_URL = "${SUPABASE_URL}"
+VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplZHBuc250eHJ0dnJ5c3RvZnhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMTI2NTcsImV4cCI6MjA4Mzg4ODY1N30.VtnM7AcNj1nxXLw-Zsu6H9qzdmHuE7hbD1aEG48S0c4 "
+VITE_SUPABASE_URL = "https://zedpnsntxrtvrystofxb.supabase.co"

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, TrendingUp } from "lucide-react";
 import { Link } from "wouter";
+import { Helmet } from "react-helmet-async";
 
 export default function Home() {
   const { data: articles, isLoading } = useArticles({ limit: "10" });
@@ -18,6 +19,10 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans">
+      <Helmet>
+        <title>FinSight - Financial News & Market Analysis</title>
+        <meta name="description" content="Stay updated with the latest stock market news, financial analysis, and investment insights on FinSight." />
+      </Helmet>
       <Navbar />
       <StockTicker />
 

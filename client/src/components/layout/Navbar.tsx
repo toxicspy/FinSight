@@ -75,7 +75,7 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-6">
+        <div className="hidden lg:flex items-center space-x-4 xl:space-x-6">
           <NavigationMenu>
             <NavigationMenuList>
               {navItems.filter(i => !i.protected || user).map((item) => (
@@ -105,7 +105,7 @@ export function Navbar() {
                     </>
                   ) : (
                     <Link href={item.path}>
-                      <div className={`px-4 py-2 text-sm font-medium transition-colors hover:text-primary cursor-pointer ${isActive(item.path) ? "text-primary font-bold" : "text-muted-foreground"}`}>
+                      <div className={`px-2 xl:px-4 py-2 text-sm font-medium transition-colors hover:text-primary cursor-pointer ${isActive(item.path) ? "text-primary font-bold" : "text-muted-foreground"}`}>
                         {item.name}
                       </div>
                     </Link>
@@ -116,7 +116,7 @@ export function Navbar() {
               {user && (
                  <NavigationMenuItem>
                    <Link href="/admin">
-                    <div className={`px-4 py-2 text-sm font-medium transition-colors hover:text-primary cursor-pointer ${isActive('/admin') ? "text-primary font-bold" : "text-muted-foreground"}`}>
+                    <div className={`px-2 xl:px-4 py-2 text-sm font-medium transition-colors hover:text-primary cursor-pointer ${isActive('/admin') ? "text-primary font-bold" : "text-muted-foreground"}`}>
                       CMS
                     </div>
                    </Link>
@@ -127,7 +127,7 @@ export function Navbar() {
         </div>
 
         {/* Right Side Actions */}
-        <div className="hidden md:flex items-center space-x-4">
+        <div className="hidden lg:flex items-center space-x-2 xl:space-x-4">
           <form onSubmit={handleSearch} className="relative w-64">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <input
@@ -163,7 +163,7 @@ export function Navbar() {
         </div>
 
         {/* Mobile Menu */}
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">

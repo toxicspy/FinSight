@@ -51,6 +51,9 @@ export function NewsCard({ article, featured = false }: NewsCardProps) {
           <img 
             src={article.imageUrl} 
             alt={article.title}
+            loading="lazy"
+            width="800"
+            height="450"
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
           <Badge className="absolute top-3 left-3 bg-white/90 text-primary hover:bg-white backdrop-blur shadow-sm">

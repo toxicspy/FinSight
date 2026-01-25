@@ -141,14 +141,32 @@ export async function registerRoutes(
       }
 
       const id = parseInt(req.params.id);
-      const input = req.body;
-      const article = await storage.updateArticle(id, input);
+      
+      const { data, error } = await supabaseAdmin
+        .from("articles")
+        .update({
+          ...req.body,
+          updated_at: new Date().toISOString(),
+          image_url: req.body.imageUrl,
+          author_name: req.body.authorName,
+          is_featured: req.body.isFeatured,
+          is_editor_pick: req.body.isEditorPick,
+          ticker_symbol: req.body.tickerSymbol
+        })
+        .eq("id", id)
+        .select()
+        .single();
 
-      if (!article) {
+      if (error) {
+        console.error("Supabase update error:", error);
+        return res.status(500).json({ error: error.message });
+      }
+
+      if (!data) {
         return res.status(404).json({ message: "Article not found" });
       }
 
-      res.json(article);
+      res.json(data);
     } catch (err) {
       console.error("Update article error:", err);
       res.status(500).json({ message: "Internal server error" });
@@ -156,18 +174,28 @@ export async function registerRoutes(
   });
 
   app.delete(api.articles.delete.path, async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Unauthorized" });
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const id = parseInt(req.params.id);
+      
+      const { error } = await supabaseAdmin
+        .from("articles")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        console.error("Supabase delete error:", error);
+        return res.status(500).json({ error: error.message });
+      }
+
+      res.sendStatus(204);
+    } catch (err) {
+      console.error("Delete article error:", err);
+      res.status(500).json({ message: "Internal server error" });
     }
-
-    const id = parseInt(req.params.id);
-    const success = await storage.deleteArticle(id);
-
-    if (!success) {
-      return res.status(404).json({ message: "Article not found" });
-    }
-
-    res.sendStatus(204);
   });
 
   app.get(api.articles.search.path, async (req, res) => {

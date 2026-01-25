@@ -1,0 +1,188 @@
+Got it 👍
+And you’re right — this **is actually a simple problem**, it just looks big because of the moving parts.
+
+Let me explain it **clearly and directly**, without rebuilding anything.
+
+---
+
+## 🧠 The REAL reason you can’t update or delete from CMS
+
+### 👉 **Your CMS is NOT talking to Supabase for update/delete**
+
+It is **still trying to update a local Drizzle/Postgres table** that either:
+
+* does **not exist**, OR
+* does **not contain the article**, OR
+* is **blocked by logic / mismatch**
+
+Meanwhile:
+
+* **Create (Publish)** → ✅ goes to **Supabase**
+* **Read (Display)** → ✅ now goes to **Supabase**
+* **Update / Delete** → ❌ still goes to **local DB (Drizzle)**
+
+So CMS actions don’t affect Supabase at all.
+
+That’s why:
+
+> “I can only update or delete by going into Supabase directly”
+
+---
+
+## 🔍 Proof (what’s happening internally)
+
+Your CMS buttons call:
+
+```ts
+api.articles.update
+api.articles.delete
+```
+
+Those routes internally still do something like:
+
+```ts
+db.update(articles)...   // Drizzle
+db.delete(articles)...   // Drizzle
+```
+
+❌ But your articles **live in Supabase**, not Drizzle.
+
+So:
+
+* No error
+* No change
+* CMS appears “broken”
+
+---
+
+## ✅ The ONLY correct fix (no guesswork)
+
+### 🔥 Rule
+
+> **ALL article operations must use Supabase**
+> Create · Read · Update · Delete
+
+Right now only Create + Read do.
+
+---
+
+## 🛠 What you must change (exactly)
+
+### 1️⃣ Fix **UPDATE article route**
+
+Replace **Drizzle update** with **Supabase update**
+
+```ts
+// UPDATE ARTICLE
+app.put(api.articles.update.path, async (req, res) => {
+  const id = Number(req.params.id);
+
+  const { error, data } = await supabaseAdmin
+    .from("articles")
+    .update(req.body)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.json(data);
+});
+```
+
+---
+
+### 2️⃣ Fix **DELETE article route**
+
+```ts
+// DELETE ARTICLE
+app.delete(api.articles.delete.path, async (req, res) => {
+  const id = Number(req.params.id);
+
+  const { error } = await supabaseAdmin
+    .from("articles")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.status(204).send();
+});
+```
+
+---
+
+## 🔐 Important: Supabase RLS (VERY COMMON ISSUE)
+
+If update/delete still fail after this, then it’s **Row Level Security**.
+
+### Quick test
+
+In Supabase → SQL editor:
+
+```sql
+ALTER TABLE articles DISABLE ROW LEVEL SECURITY;
+```
+
+If CMS starts working → 🎯 confirmed RLS issue.
+
+### Proper solution (recommended later)
+
+Create policies like:
+
+```sql
+ALLOW service_role FULL ACCESS
+```
+
+Since you’re using `supabaseAdmin`, this is safe.
+
+---
+
+## ✅ Why CREATE works but UPDATE/DELETE didn’t
+
+| Action | Database used |
+| ------ | ------------- |
+| Create | Supabase ✅    |
+| Read   | Supabase ✅    |
+| Update | Drizzle ❌     |
+| Delete | Drizzle ❌     |
+
+That mismatch is the **entire bug**.
+
+---
+
+## 🧪 How to confirm it’s fixed
+
+1. Edit article in CMS → Save
+2. Refresh Supabase table → ✅ updated
+3. Delete article in CMS
+4. Supabase row disappears → ✅
+
+No rebuild, no migration, no data loss.
+
+---
+
+## 🧩 Final reassurance
+
+You **did not design this wrong**.
+This happens when:
+
+* CMS evolves
+* Storage backend changes
+* Routes don’t get updated together
+
+Very common. Very fixable.
+
+---
+
+If you want, next I can:
+
+* ✔️ audit **all article routes**
+* ✔️ remove Drizzle article logic completely
+* ✔️ harden Supabase policies
+
+Just tell me 👍

@@ -145,13 +145,18 @@ export async function registerRoutes(
       const { data, error } = await supabaseAdmin
         .from("articles")
         .update({
-          ...req.body,
-          updated_at: new Date().toISOString(),
+          title: req.body.title,
+          slug: req.body.slug,
+          summary: req.body.summary,
+          content: req.body.content,
+          category: req.body.category,
+          subcategory: req.body.subcategory,
           image_url: req.body.imageUrl,
           author_name: req.body.authorName,
           is_featured: req.body.isFeatured,
           is_editor_pick: req.body.isEditorPick,
-          ticker_symbol: req.body.tickerSymbol
+          ticker_symbol: req.body.tickerSymbol,
+          updated_at: new Date().toISOString()
         })
         .eq("id", id)
         .select()
@@ -159,14 +164,17 @@ export async function registerRoutes(
 
       if (error) {
         console.error("Supabase update error:", error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ message: error.message });
       }
 
       if (!data) {
         return res.status(404).json({ message: "Article not found" });
       }
 
-      res.json(data);
+      // Map back to frontend camelCase if necessary, or just return data
+      // Based on previous logs, the frontend seems to handle the snake_case response from Supabase fine 
+      // as long as it gets a valid JSON object with the right status.
+      res.status(200).json(data);
     } catch (err) {
       console.error("Update article error:", err);
       res.status(500).json({ message: "Internal server error" });

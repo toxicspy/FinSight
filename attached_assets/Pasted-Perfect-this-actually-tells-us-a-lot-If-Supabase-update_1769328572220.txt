@@ -1,0 +1,187 @@
+Perfect — this actually tells us **a lot** 👍
+If **Supabase updates successfully** but the UI still says **“Failed to update”**, then:
+
+> ✅ **Backend update is working**
+> ❌ **Frontend thinks it failed because the response is not what it expects**
+
+This is a **response-contract mismatch**, not a database problem.
+
+---
+
+## 🔍 Why this happens (very common)
+
+Your CMS update button likely does **one of these checks**:
+
+```ts
+if (!response.ok) throw new Error("Failed to update");
+```
+
+OR
+
+```ts
+if (!data || !data.id) throw new Error("Failed to update");
+```
+
+OR
+
+```ts
+expect status === 200 with updated article
+```
+
+But your API is probably returning something **slightly different**.
+
+---
+
+## ✅ Most likely causes (ranked)
+
+### 🥇 1. You changed `PATCH` / `PUT` behavior but frontend still expects old response
+
+Your frontend probably expects:
+
+```json
+{
+  "id": 12,
+  "title": "...",
+  ...
+}
+```
+
+But Supabase may be returning:
+
+* `null`
+* `[]`
+* or `{}`
+
+unless `.select().single()` is used correctly.
+
+---
+
+### 🥈 2. Status code mismatch (VERY common)
+
+If your API returns:
+
+```ts
+res.status(204).send()
+```
+
+Frontend sees:
+
+* `response.ok === true`
+* BUT **no JSON body**
+* `.json()` throws → ❌ “Failed to update”
+
+---
+
+### 🥉 3. Frontend expects `PATCH`, backend uses `PUT` (or vice-versa)
+
+Button sends:
+
+```ts
+fetch("/api/articles/1", { method: "PATCH" })
+```
+
+But route is:
+
+```ts
+app.put("/api/articles/:id")
+```
+
+Express will **never hit the route**, returns 404 → ❌ UI error
+
+---
+
+## 🎯 The CORRECT update route (100% CMS-safe)
+
+Use **PATCH**, return **updated article**, status **200**.
+
+### ✅ Backend (final form)
+
+```ts
+app.patch(api.articles.update.path, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+
+    const { data, error } = await supabaseAdmin
+      .from("articles")
+      .update(req.body)
+      .eq("id", id)
+      .select()
+      .single(); // IMPORTANT
+
+    if (error) {
+      console.error("Update error:", error);
+      return res.status(500).json({ message: error.message });
+    }
+
+    res.status(200).json(data); // MUST return article
+  } catch (err) {
+    console.error("Update failed:", err);
+    res.status(500).json({ message: "Failed to update article" });
+  }
+});
+```
+
+---
+
+## 🧪 How to confirm the exact frontend expectation (quick)
+
+Open **DevTools → Network → Update request**
+
+Check:
+
+1. **Request method** → PATCH or PUT?
+2. **Response status** → must be `200`
+3. **Response body** → must be updated article JSON
+
+If any of these fail → CMS shows error.
+
+---
+
+## 🛠 Frontend quick fix (if needed)
+
+If your CMS does:
+
+```ts
+const res = await fetch(...)
+if (!res.ok) throw ...
+```
+
+Then **DO NOT return 204** from backend.
+
+If CMS does:
+
+```ts
+const data = await res.json()
+if (!data) throw ...
+```
+
+Then **always return JSON**.
+
+---
+
+## 🧠 Why delete works but update shows error
+
+| Action | UI expects | Backend returned |
+| ------ | ---------- | ---------------- |
+| Delete | 204        | 204 ✅            |
+| Update | JSON       | ❌ empty / wrong  |
+
+Delete buttons usually **don’t read response body**.
+Update buttons **always do**.
+
+---
+
+## ✅ Final checklist (do these 3)
+
+✔ Use `PATCH`, not `PUT`
+✔ Use `.select().single()`
+✔ Return `res.status(200).json(updatedArticle)`
+
+---
+
+If you want, paste:
+
+* your **CMS update fetch() code**
+* or the **Network tab response**
+
+and I’ll align the backend **exactly** to it — zero trial and error.

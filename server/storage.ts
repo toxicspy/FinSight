@@ -1,93 +1,192 @@
-import { db } from "./db";
-import {
-  articles, stocks,
-  type Article, type InsertArticle,
-  type Stock, type InsertStock
-} from "@shared/schema";
-import { eq, desc, sql } from "drizzle-orm";
-import { authStorage, type IAuthStorage } from "./replit_integrations/auth/storage";
+// storage.ts
+import { supabaseAdmin } from "./lib/supabase-admin";
+import { z } from "zod";
 
-export interface IStorage extends IAuthStorage {
-  getArticles(limit?: number, category?: string, featured?: boolean): Promise<Article[]>;
-  getArticleBySlug(slug: string): Promise<Article | undefined>;
-  createArticle(article: InsertArticle): Promise<Article>;
-  updateArticle(id: number, article: Partial<InsertArticle>): Promise<Article | undefined>;
-  deleteArticle(id: number): Promise<boolean>;
-  
-  getStocks(): Promise<Stock[]>;
-  getStock(symbol: string): Promise<Stock | undefined>;
-  createStock(stock: InsertStock): Promise<Stock>;
-  searchArticles(query: string): Promise<Article[]>;
+// Types for articles and stocks
+export interface ArticleInput {
+  title: string;
+  slug: string;
+  summary: string;
+  content: string;
+  category: string;
+  subcategory?: string | null;
+  imageUrl?: string;
+  authorName?: string;
+  authorId?: string;
+  tickerSymbol?: string | null;
+  isFeatured?: boolean;
+  isEditorPick?: boolean;
+  status?: "published" | "draft";
 }
 
-export class DatabaseStorage extends (authStorage.constructor as { new (): IAuthStorage }) implements IStorage {
-  async getArticles(limit?: number, category?: string, featured?: boolean): Promise<Article[]> {
-    let query = db.select().from(articles).orderBy(desc(articles.publishedAt));
-    
-    if (category) {
-      query = query.where(eq(articles.category, category)) as any;
-    }
-    if (featured) {
-      query = query.where(eq(articles.isFeatured, true)) as any;
-    }
-    if (limit) {
-      query = query.limit(limit) as any;
-    }
-    
-    return await query;
-  }
-
-  async getArticleBySlug(slug: string): Promise<Article | undefined> {
-    const [article] = await db.select().from(articles).where(eq(articles.slug, slug));
-    return article;
-  }
-
-  async createArticle(article: InsertArticle): Promise<Article> {
-    const [newArticle] = await db.insert(articles).values(article).returning();
-    return newArticle;
-  }
-
-  async updateArticle(id: number, article: Partial<InsertArticle>): Promise<Article | undefined> {
-    const [updatedArticle] = await db
-      .update(articles)
-      .set(article)
-      .where(eq(articles.id, id))
-      .returning();
-    return updatedArticle;
-  }
-
-  async deleteArticle(id: number): Promise<boolean> {
-    const [deletedArticle] = await db
-      .delete(articles)
-      .where(eq(articles.id, id))
-      .returning();
-    return !!deletedArticle;
-  }
-
-  async getStocks(): Promise<Stock[]> {
-    return await db.select().from(stocks);
-  }
-
-  async getStock(symbol: string): Promise<Stock | undefined> {
-    const [stock] = await db.select().from(stocks).where(eq(stocks.symbol, symbol));
-    return stock;
-  }
-
-  async createStock(stock: InsertStock): Promise<Stock> {
-    const [newStock] = await db.insert(stocks).values(stock).returning();
-    return newStock;
-  }
-
-  async searchArticles(query: string): Promise<Article[]> {
-    const results = await db
-      .select()
-      .from(articles)
-      .where(
-        sql`LOWER(${articles.title}) LIKE LOWER(${'%' + query + '%'}) OR LOWER(${articles.content}) LIKE LOWER(${'%' + query + '%'})`
-      )
-      .orderBy(desc(articles.publishedAt));
-    return results;
-  }
+export interface Article extends ArticleInput {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  published_at?: string;
 }
 
-export const storage = new DatabaseStorage();
+export interface StockInput {
+  symbol: string;
+  name: string;
+  price: string;
+  change: string;
+  changePercent: string;
+  sector: string;
+}
+
+export interface Stock extends StockInput {
+  id: number;
+}
+
+// ---------------- Articles ----------------
+
+export async function createArticle(input: ArticleInput): Promise<Article> {
+  const now = new Date();
+  const { data, error } = await supabaseAdmin
+    .from("articles")
+    .insert({
+      ...input,
+      status: input.status || "published",
+      created_at: now.toISOString(),
+      updated_at: now.toISOString(),
+      published_at: input.status === "published" ? now.toISOString() : null,
+      image_url: input.imageUrl,
+      author_name: input.authorName,
+      ticker_symbol: input.tickerSymbol || null,
+    })
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return data as Article;
+}
+
+export async function updateArticle(
+  id: number,
+  updates: Partial<ArticleInput>,
+): Promise<Article | null> {
+  const now = new Date();
+  const { data, error } = await supabaseAdmin
+    .from("articles")
+    .update({ ...updates, updated_at: now.toISOString() })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Update Article Error:", error);
+    return null;
+  }
+  return data as Article;
+}
+
+export async function deleteArticle(id: number): Promise<boolean> {
+  const { error } = await supabaseAdmin.from("articles").delete().eq("id", id);
+
+  if (error) {
+    console.error("Delete Article Error:", error);
+    return false;
+  }
+  return true;
+}
+
+export async function getArticles(
+  limit = 20,
+  category?: string,
+  featured?: boolean,
+): Promise<Article[]> {
+  let query = supabaseAdmin
+    .from("articles")
+    .select("*")
+    .eq("status", "published")
+    .order("published_at", { ascending: false })
+    .limit(limit);
+
+  if (category) query = query.eq("category", category);
+  if (featured) query = query.eq("is_featured", true);
+
+  const { data, error } = await query;
+  if (error) {
+    console.error("Get Articles Error:", error);
+    return [];
+  }
+  return data as Article[];
+}
+
+export async function getArticleBySlug(slug: string): Promise<Article | null> {
+  const { data, error } = await supabaseAdmin
+    .from("articles")
+    .select("*")
+    .eq("slug", slug)
+    .eq("status", "published")
+    .single();
+
+  if (error) return null;
+  return data as Article;
+}
+
+export async function searchArticles(query: string): Promise<Article[]> {
+  const { data, error } = await supabaseAdmin
+    .from("articles")
+    .select("*")
+    .ilike("title", `%${query}%`)
+    .eq("status", "published")
+    .order("published_at", { ascending: false });
+
+  if (error) {
+    console.error("Search Articles Error:", error);
+    return [];
+  }
+  return data as Article[];
+}
+
+// ---------------- Stocks ----------------
+
+export async function createStock(input: StockInput): Promise<Stock> {
+  const { data, error } = await supabaseAdmin
+    .from("stocks")
+    .insert(input)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return data as Stock;
+}
+
+export async function getStocks(): Promise<Stock[]> {
+  const { data, error } = await supabaseAdmin
+    .from("stocks")
+    .select("*")
+    .order("symbol", { ascending: true });
+
+  if (error) {
+    console.error("Get Stocks Error:", error);
+    return [];
+  }
+  return data as Stock[];
+}
+
+export async function getStock(symbol: string): Promise<Stock | null> {
+  const { data, error } = await supabaseAdmin
+    .from("stocks")
+    .select("*")
+    .eq("symbol", symbol)
+    .single();
+
+  if (error) return null;
+  return data as Stock;
+}
+
+// Export the storage functions as an object named 'storage' to fix the import error in routes.ts
+export const storage = {
+  createArticle,
+  updateArticle,
+  deleteArticle,
+  getArticles,
+  getArticleBySlug,
+  searchArticles,
+  createStock,
+  getStocks,
+  getStock,
+};

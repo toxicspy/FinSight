@@ -2,20 +2,20 @@ import { useArticle, useArticles } from "@/hooks/use-articles";
 import { Helmet } from "react-helmet-async";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { useRoute } from "wouter";
+import { useRoute, Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { formatDateTime } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Share2, Bookmark, AlertCircle } from "lucide-react";
+import { Share2, Bookmark, AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { NewsCard } from "@/components/articles/NewsCard";
 
 export default function ArticleDetail() {
   const [_, params] = useRoute("/article/:slug");
   const slug = params?.slug || "";
-  const { data: article, isLoading } = useArticle(slug);
+  const { data: article, isLoading, error } = useArticle(slug);
   const { data: allArticles } = useArticles();
 
   const moreArticles = allArticles
@@ -28,21 +28,38 @@ export default function ArticleDetail() {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
-        <div className="container mx-auto px-4 py-12 max-w-4xl">
+        <div className="container mx-auto px-4 py-12 max-w-4xl flex-grow">
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
           <Skeleton className="h-12 w-3/4 mb-4" />
           <Skeleton className="h-6 w-1/2 mb-8" />
           <Skeleton className="h-[400px] w-full rounded-2xl mb-8" />
-          <div className="space-y-4">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-5/6" />
-          </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
-  if (!article) return <div>Article not found</div>;
+  if (error || !article) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="container mx-auto px-4 py-12 text-center flex-grow" data-testid="status-error">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Article Not Found</h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-8">The article you are looking for might have been moved or deleted.</p>
+          <Link href="/">
+            <Button variant="default" data-testid="link-back-home">Return to Home</Button>
+          </Link>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  const articleImageUrl = article.imageUrl || (article as any).image_url || 'https://images.unsplash.com/photo-1611974765270-ca1258634369?w=800&h=600&fit=crop';
+  const authorName = article.authorName || (article as any).author_name || 'Anonymous';
+  const authorInitial = authorName[0]?.toUpperCase() || 'A';
 
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans">
@@ -53,65 +70,12 @@ export default function ArticleDetail() {
         <meta property="og:type" content="article" />
         <meta property="og:title" content={article.title} />
         <meta property="og:description" content={article.summary} />
-        <meta property="og:image" content={article.imageUrl} />
+        <meta property="og:image" content={articleImageUrl} />
         <meta property="og:url" content={window.location.href} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={article.title} />
         <meta name="twitter:description" content={article.summary} />
-        <meta name="twitter:image" content={article.imageUrl} />
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "NewsArticle",
-            "headline": article.title,
-            "description": article.summary,
-            "image": [article.imageUrl],
-            "author": {
-              "@type": "Person",
-              "name": article.authorName
-            },
-            "publisher": {
-              "@type": "Organization",
-              "name": "FinSight",
-              "logo": {
-                "@type": "ImageObject",
-                "url": `${window.location.origin}/favicon.png`
-              }
-            },
-            "datePublished": article.publishedAt,
-            "dateModified": article.publishedAt,
-            "mainEntityOfPage": {
-              "@type": "WebPage",
-              "@id": window.location.href
-            }
-          })}
-        </script>
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            "itemListElement": [
-              {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Home",
-                "item": window.location.origin
-              },
-              {
-                "@type": "ListItem",
-                "position": 2,
-                "name": article.category,
-                "item": `${window.location.origin}/category/${encodeURIComponent(article.category)}`
-              },
-              {
-                "@type": "ListItem",
-                "position": 3,
-                "name": article.title,
-                "item": window.location.href
-              }
-            ]
-          })}
-        </script>
+        <meta name="twitter:image" content={articleImageUrl} />
       </Helmet>
       <Navbar />
       
@@ -131,11 +95,11 @@ export default function ArticleDetail() {
           <div className="flex items-center justify-center space-x-6 border-y border-border py-4">
             <div className="flex items-center space-x-3">
               <Avatar>
-                <AvatarImage src={`https://ui-avatars.com/api/?name=${article.authorName}`} />
-                <AvatarFallback>{article.authorName[0]}</AvatarFallback>
+                <AvatarImage src={`https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}`} />
+                <AvatarFallback>{authorInitial}</AvatarFallback>
               </Avatar>
               <div className="text-left">
-                <p className="text-sm font-bold text-foreground">{article.authorName}</p>
+                <p className="text-sm font-bold text-foreground">{authorName}</p>
                 <p className="text-xs text-muted-foreground">Financial Analyst</p>
               </div>
             </div>
@@ -160,7 +124,7 @@ export default function ArticleDetail() {
         {/* Featured Image */}
         <div className="relative aspect-video rounded-2xl overflow-hidden mb-12 shadow-2xl shadow-black/5">
           <img 
-            src={article.imageUrl} 
+            src={articleImageUrl} 
             alt={article.title}
             className="w-full h-full object-cover"
             loading="lazy"
@@ -168,7 +132,7 @@ export default function ArticleDetail() {
         </div>
 
         {/* Content */}
-        <article className="prose prose-lg prose-slate max-w-none mb-12 prose-headings:font-serif prose-headings:font-bold prose-a:text-primary prose-img:rounded-xl">
+        <article className="prose prose-lg prose-slate max-w-none mb-12 prose-headings:font-serif prose-headings:font-bold prose-a:text-primary prose-img:rounded-xl dark:prose-invert">
            <div dangerouslySetInnerHTML={{ __html: article.content.replace(/\n/g, '<br/>') }} />
         </article>
 
@@ -195,7 +159,6 @@ export default function ArticleDetail() {
             </div>
           </div>
         )}
-
       </main>
       <Footer />
     </div>

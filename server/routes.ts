@@ -155,8 +155,7 @@ export async function registerRoutes(
           author_name: req.body.authorName,
           is_featured: req.body.isFeatured,
           is_editor_pick: req.body.isEditorPick,
-          ticker_symbol: req.body.tickerSymbol,
-          updated_at: new Date().toISOString()
+          ticker_symbol: req.body.tickerSymbol
         })
         .eq("id", id)
         .select()

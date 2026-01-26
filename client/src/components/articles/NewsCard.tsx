@@ -9,13 +9,16 @@ interface NewsCardProps {
 }
 
 export function NewsCard({ article, featured = false }: NewsCardProps) {
+  const imageUrl = article.imageUrl || (article as any).image_url || 'https://images.unsplash.com/photo-1611974765270-ca1258634369?w=800&h=600&fit=crop';
+  const authorName = article.authorName || (article as any).author_name || 'Anonymous';
+
   if (featured) {
     return (
       <Link href={`/article/${article.slug}`}>
         <div className="group relative overflow-hidden rounded-2xl cursor-pointer h-full min-h-[400px]">
           <div className="absolute inset-0 bg-slate-900/10 group-hover:bg-slate-900/0 transition-colors z-10" />
           <img 
-            src={article.imageUrl} 
+            src={imageUrl} 
             alt={article.title}
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
@@ -32,7 +35,7 @@ export function NewsCard({ article, featured = false }: NewsCardProps) {
               {article.summary}
             </p>
             <div className="flex items-center text-slate-300 text-sm font-medium">
-              <span>{article.authorName}</span>
+              <span>{authorName}</span>
               <span className="mx-2">•</span>
               <span style={{ color: '#137333', fontWeight: 500 }}>
                 🕒 {formatDateTime(article.publishedAt || "")}
@@ -49,7 +52,7 @@ export function NewsCard({ article, featured = false }: NewsCardProps) {
       <div className="group flex flex-col h-full bg-card rounded-xl border border-border/50 overflow-hidden hover:shadow-lg hover:border-primary/20 transition-all duration-300 cursor-pointer">
         <div className="relative aspect-video overflow-hidden">
           <img 
-            src={article.imageUrl} 
+            src={imageUrl} 
             alt={article.title}
             loading="lazy"
             width="800"
@@ -68,7 +71,7 @@ export function NewsCard({ article, featured = false }: NewsCardProps) {
             {article.summary}
           </p>
           <div className="flex items-center justify-between text-xs text-muted-foreground mt-auto pt-4 border-t border-border/50">
-            <span className="font-medium text-foreground">{article.authorName}</span>
+            <span className="font-medium text-foreground">{authorName}</span>
             <span style={{ color: '#137333', fontWeight: 500 }}>
               🕒 {formatDateTime(article.publishedAt || "")}
             </span>

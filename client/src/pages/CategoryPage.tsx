@@ -22,9 +22,23 @@ export default function CategoryPage() {
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
           .join(" ");
 
-  // IMPORTANT: Send SLUG to backend, NOT title
+  // Map slug back to exactly what is stored in the database if necessary
+  const categoryMap: Record<string, string> = {
+    "market-news": "News",
+    "cryptocurrency": "Cryptocurrency",
+    "personal-finance": "Personal Finance",
+    "ipo-analysis": "IPO Analysis",
+    "stock-ideas": "Stock Ideas",
+    "fpo-analysis": "FPO Analysis",
+    "results": "Results",
+    "news": "News"
+  };
+
+  const dbCategory = categoryMap[categorySlug] || categorySlug;
+
+  // IMPORTANT: Send the correct category name to backend
   const { data: articles, isLoading } = useArticles({
-    category: categorySlug === "all" ? undefined : categorySlug,
+    category: categorySlug === "all" ? undefined : dbCategory,
   });
 
   return (

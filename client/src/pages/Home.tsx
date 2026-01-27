@@ -11,11 +11,11 @@ import { Link } from "wouter";
 import { Helmet } from "react-helmet-async";
 
 export default function Home() {
-  const { data: articles, isLoading } = useArticles({ limit: "10" });
+  const { data: articles, isLoading } = useArticles({ limit: "20" });
 
   const featuredArticle = articles?.find(a => a.isFeatured) || articles?.[0];
   const editorPicks = articles?.filter(a => a.isEditorPick).slice(0, 3) || [];
-  const latestNews = articles?.filter(a => a.id !== featuredArticle?.id && !a.isEditorPick) || [];
+  const latestNews = articles?.filter(a => a.id !== featuredArticle?.id && !a.isEditorPick && (a.category === "News" || (a as any).category === "Market News")) || [];
 
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans">

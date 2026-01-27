@@ -38,7 +38,7 @@ export function NewsCard({ article, featured = false }: NewsCardProps) {
               <span>{authorName}</span>
               <span className="mx-2">•</span>
               <span style={{ color: '#137333', fontWeight: 500 }}>
-                🕒 {formatDateTime(article.publishedAt || "")}
+                🕒 {formatDateTime(article.publishedAt || (article as any).published_at)}
               </span>
             </div>
           </div>

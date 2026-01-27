@@ -107,7 +107,7 @@ export default function ArticleDetail() {
             <div className="text-left">
               <p className="text-sm font-bold text-foreground">Published</p>
               <p className="text-xs font-medium" style={{ color: '#137333' }}>
-                🕒 {formatDateTime(article.publishedAt || "")}
+                🕒 {formatDateTime(article.publishedAt || (article as any).published_at)}
               </p>
             </div>
             <div className="flex-grow md:flex-grow-0 md:ml-auto flex gap-2">

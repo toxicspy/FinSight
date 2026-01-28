@@ -31,7 +31,9 @@ export default function CategoryPage() {
     "stock-ideas": "Stock Ideas",
     "fpo-analysis": "FPO Analysis",
     "results": "Results",
-    "news": "News"
+    "news": "News",
+    "analysis": "Analysis",
+    "finance": "Personal Finance"
   };
 
   const dbCategory = categoryMap[categorySlug] || categorySlug;
